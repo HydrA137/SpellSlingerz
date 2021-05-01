@@ -1,0 +1,9 @@
+
+Binaries/
+Build/
+Debug/
+DerivedDataCache/
+.vs
+Saved/Crashes/
+Saved/Config/CrashReportClient/
+Saved/Logs/
