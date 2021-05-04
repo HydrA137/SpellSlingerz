@@ -52,6 +52,9 @@ struct FSpellProperties
 	UPROPERTY()
 	float range;
 
+	UPROPERTY()
+	float lifeTime; //seconds
+
 	//////////////////
 	// Offense
 	//The damage type and damage that will be done by this projectile

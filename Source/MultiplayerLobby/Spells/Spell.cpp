@@ -98,7 +98,8 @@ void ASpell::FireAt(FVector _target)
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		
+		FTimerHandle lifeTimerHandle;
+		GetWorldTimerManager().SetTimer(lifeTimerHandle, this, &ASpell::Destroyed, properties.lifeTime, false);
 		OnTravellingChanged();
 	}
 }
@@ -170,6 +171,8 @@ void ASpell::Destroyed()
 		travelEffectComponent->DeactivateSystem();
 	}
 	UGameplayStatics::SpawnEmitterAtLocation(this, explosionEffect, spawnLocation, FRotator::ZeroRotator, true, EPSCPoolMethod::AutoRelease);
+
+	Destroy();
 }
 
 void ASpell::SetCurrentSpeed(float speed)

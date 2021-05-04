@@ -20,6 +20,7 @@
 #include "Spells/MagicMissile.h"
 #include "Spells/SpellProperties.h"
 #include "Spells/SpellBook.h"
+#include "SSPlayerState.h"
 #include "MPGameMode.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -27,8 +28,13 @@
 
 ATPCharacter::ATPCharacter()
 {
+	bReplicates = true;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
+	CharacterName = "Test1";
+	lastDamageDealer = 0;
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
@@ -159,6 +165,17 @@ void ATPCharacter::FinaliseDeath_Implementation()
 		float spawnDelay = gameMode->GetSpawnDelay();
 		float removeBodyDelay = gameMode->GetRemoveBodyDelay();
 
+		if (lastDamageDealer != this)
+		{
+			lastDamageDealer->GetPlayerState<ASSPlayerState>()->AddKill();
+			this->GetPlayerState<ASSPlayerState>()->AddDeath();
+		}
+		else
+		{
+			this->GetPlayerState<ASSPlayerState>()->RemoveKill();
+			this->GetPlayerState<ASSPlayerState>()->AddDeath();
+		}
+
 		GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ATPCharacter::Respawn, spawnDelay, false);
 		GetWorldTimerManager().SetTimer(removeBodyTimerHandle, this, &ATPCharacter::RemoveBody, removeBodyDelay, false);
 	}
@@ -189,6 +206,11 @@ void ATPCharacter::SetCurrentHealth(float healthValue)
 float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float damageApplied = CurrentHealth - DamageTaken;
+	lastDamageDealer = Cast<ATPCharacter>(Cast<ASpell>(DamageCauser)->GetOwner());
+
+	if (damageApplied < 0 || lastDamageDealer == this)
+		return 0;
+
 	SetCurrentHealth(damageApplied);
 	return damageApplied;
 }
