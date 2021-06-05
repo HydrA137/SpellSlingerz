@@ -12,9 +12,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiplayerLobby", "Intermediate\ProjectFiles\MultiplayerLobby.vcxproj", "{720E85B7-824E-4010-A811-1AAC1F0517B3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Visualizers", "Visualizers", "{1CCEC849-CC72-4C59-8C36-2F7C38706D4C}"
-	ProjectSection(SolutionItems) = preProject
-		$(UE4_ENGINE)UE_4.26\Engine\Extras\VisualStudioDebugging\UE4.natvis = $(UE4_ENGINE)\UE_4.26\Engine\Extras\VisualStudioDebugging\UE4.natvis
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,7 +37,7 @@ Global
 		{2A5C40E6-13A9-4B84-A678-CDDEEDBA3EA4}.Development|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
 		{2A5C40E6-13A9-4B84-A678-CDDEEDBA3EA4}.Shipping|Win32.ActiveCfg = BuiltWithUnrealBuildTool|Win32
 		{2A5C40E6-13A9-4B84-A678-CDDEEDBA3EA4}.Shipping|Win64.ActiveCfg = BuiltWithUnrealBuildTool|Win32
-		{720E85B7-824E-4010-A811-1AAC1F0517B3}.DebugGame Editor|Win32.ActiveCfg = Invalid|Win32
+		{720E85B7-824E-4010-A811-1AAC1F0517B3}.DebugGame Editor|Win32.ActiveCfg = Development_Editor|Win32
 		{720E85B7-824E-4010-A811-1AAC1F0517B3}.DebugGame Editor|Win64.ActiveCfg = DebugGame_Editor|x64
 		{720E85B7-824E-4010-A811-1AAC1F0517B3}.DebugGame Editor|Win64.Build.0 = DebugGame_Editor|x64
 		{720E85B7-824E-4010-A811-1AAC1F0517B3}.DebugGame|Win32.ActiveCfg = DebugGame|Win32
@@ -65,5 +62,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{2A5C40E6-13A9-4B84-A678-CDDEEDBA3EA4} = {94A6C6F3-99B3-346E-9557-ABF9D4064DBD}
 		{720E85B7-824E-4010-A811-1AAC1F0517B3} = {8E2F6A87-1826-34F4-940C-CC23A48F9FE4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C196CEB8-7E3C-4DB5-A8A4-23EEEA926EBB}
 	EndGlobalSection
 EndGlobal
