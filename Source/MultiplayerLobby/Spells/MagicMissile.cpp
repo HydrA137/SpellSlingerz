@@ -47,11 +47,20 @@ AMagicMissile::AMagicMissile()
 		explosionEffect = DefaultExplosionEffect.Object;
 	}
 
+
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultTravelEffect(TEXT("/Game/ThirdPerson/Particles/P_Sparkles.P_Sparkles"));
 	if (DefaultTravelEffect.Succeeded())
 	{
 		travelEffect = DefaultTravelEffect.Object;
 	}*/
+
+	/*static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultExplosionEffect(TEXT("/Game/Particles/P_MM_Explode.P_MM_Explode"));
+	if (DefaultExplosionEffect.Succeeded())
+	{
+		explosionEffect = DefaultExplosionEffect.Object;
+	}*/
+
+	
 
 	isTraveling = false;
 }

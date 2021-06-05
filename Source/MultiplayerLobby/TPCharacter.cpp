@@ -33,7 +33,7 @@ ATPCharacter::ATPCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
-	CharacterName = "Test1";
+	CharacterName = FName(*FString::FromInt(rand() % 100));
 	lastDamageDealer = 0;
 
 	// set our turn rates for input
@@ -206,10 +206,14 @@ void ATPCharacter::SetCurrentHealth(float healthValue)
 float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float damageApplied = CurrentHealth - DamageTaken;
-	lastDamageDealer = Cast<ATPCharacter>(Cast<ASpell>(DamageCauser)->GetOwner());
+	lastDamageDealer = Cast<ATPCharacter>(Cast<AActor>(DamageCauser)->GetOwner());
 
-	if (damageApplied < 0 || lastDamageDealer == this)
+	FString ownerMessage = "Last: " + lastDamageDealer->GetName().ToString() + ", This: " + this->GetName().ToString();
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, ownerMessage);
+	if (lastDamageDealer == this)
+	{
 		return 0;
+	}
 
 	SetCurrentHealth(damageApplied);
 	return damageApplied;
@@ -224,13 +228,13 @@ void ATPCharacter::Firing()
 {
 	if (!currentSpell)
 	{
-		FSpellProperties& spell = spellBook->GetSpellByName("MagicMissile");
-		if (IsSpellReady(spell))
+		ASpell* spell = spellBook->GetSpellByName2("Magic Missile");
+		if (spell && spell->IsReady())
 		{
 			FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 120.0f) + (GetActorUpVector() * 50.0f);
 			
 			FVector start = FVector(spawnLocation);
-			FVector end = start + (GetFollowCamera()->GetForwardVector() * spell.range);
+			FVector end = start + (GetFollowCamera()->GetForwardVector() * spell->GetProperties().range);
 			FVector target = end;
 
 			TArray<AActor*> toIgnore = { this };
@@ -241,7 +245,7 @@ void ATPCharacter::Firing()
 				target = result.ImpactPoint;
 			}
 			HandleFire(spell, start, end, result);
-			spell.Fired();
+			spell->Fired();
 		}
 	}
 }
@@ -260,7 +264,7 @@ void ATPCharacter::StopFire()
 	}
 }
 
-void ATPCharacter::HandleFire_Implementation(const FSpellProperties& spellProps, FVector spawn, FVector target, const FHitResult& hitResult)
+void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn, FVector target, const FHitResult& hitResult)
 {
 	FRotator spawnRotation = (target - spawn).Rotation();
 
@@ -269,14 +273,10 @@ void ATPCharacter::HandleFire_Implementation(const FSpellProperties& spellProps,
 	spawnParameters.Owner = this;	
 	
 	// Get Spell based on type
-	currentSpell = GetWorld()->SpawnActor<AMagicMissile>(spawn, spawnRotation, spawnParameters);
-	currentSpell->PrepareSpell(target, spellProps);
-
-	FVector pos = currentSpell->GetActorLocation();
-	FString healthMessage = FString::Printf(TEXT("Current pos %f,%f,%f"), pos.X, pos.Y, pos.Z);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, healthMessage);
-
-	if (spellProps.isHoming && hitResult.Actor.IsValid())
+	currentSpell = GetWorld()->SpawnActor<ASpell>(spellTarget->GetClass(), spawn, spawnRotation, spawnParameters);
+	currentSpell->PrepareSpell(target, spellTarget->GetProperties());
+	
+	if (currentSpell->GetProperties().isHoming && hitResult.Actor.IsValid())
 	{
 		ATPCharacter* targetPlayer = dynamic_cast<ATPCharacter*>(hitResult.Actor.Get());
 		if (targetPlayer)
@@ -290,11 +290,6 @@ void ATPCharacter::HandleFire_Implementation(const FSpellProperties& spellProps,
 		currentSpell->Fire();
 		currentSpell = 0;
 	}
-}
-
-bool ATPCharacter::IsSpellReady(FSpellProperties& spell)
-{
-	return spell.IsReady();
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "ExplosionProperties.h"
 #include "SpellProperties.generated.h"
 
 UENUM(BlueprintType)
@@ -29,48 +30,54 @@ struct FSpellProperties
 	
 	///////////////////
 	// Basic
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Basic")
 	FString name;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Basic")
 	TEnumAsByte<ESpellType> spellType;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Basic")
 	bool isHoming;
 
 	///////////////////
 	// Movement
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float maxSpeed;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float initialSpeed;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float acceleration;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float range;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float lifeTime; //seconds
 
 	//////////////////
 	// Offense
 	//The damage type and damage that will be done by this projectile
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	TSubclassOf<class UDamageType> damageType;
 
 	//The damage dealt by this projectile.
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	float damage;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	float fireRate;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	bool isChargable;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	float cooldownTimer = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	bool hasExplosion = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	FExplosionProperties explosionProperties;
 };

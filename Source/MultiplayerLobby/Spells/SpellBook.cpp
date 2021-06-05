@@ -4,6 +4,7 @@
 #include "SpellBook.h"
 #include "Net/UnrealNetwork.h"
 #include "Math/UnrealMathUtility.h"
+#include "Spell.h"
 
 // Sets default values for this component's properties
 USpellBook::USpellBook()
@@ -42,6 +43,15 @@ void USpellBook::BeginPlay()
 	magicMissile.range = 15000.0f;
 	magicMissile.isHoming = true;
 	magicMissile.lifeTime = 2.0f;
+	magicMissile.hasExplosion = true;
+	magicMissile.explosionProperties.acceleration = 1000.0f;
+	magicMissile.explosionProperties.damageFalloffStart = 0.5f;
+	magicMissile.explosionProperties.damageInterval = 100.0f;
+	magicMissile.explosionProperties.initialGrowSpeed = 1000.0f;
+	magicMissile.explosionProperties.maxGrowSpeed = 5000.0f;
+	magicMissile.explosionProperties.maxDamage = 50.0f;
+	magicMissile.explosionProperties.minDamage = 10.0f;
+	magicMissile.explosionProperties.maxSize = 500.0f;
 
 	spellList.Add(magicMissile.name, magicMissile);
 }
@@ -55,6 +65,18 @@ void USpellBook::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 	UpdateCooldowns(DeltaTime);
 }
 
+ASpell* USpellBook::GetSpellByName2(FString name)
+{
+	for (int i = 0; i < spells.Num(); ++i)
+	{
+		if (spells[i].GetDefaultObject()->GetProperties().name == name)
+		{
+			return spells[i].GetDefaultObject();
+		}
+	}
+	return 0;
+}
+
 void USpellBook::UpdateCooldowns(float deltaTime)
 {
 	for (auto& spellProp : spellList)
@@ -64,6 +86,17 @@ void USpellBook::UpdateCooldowns(float deltaTime)
 			float cooldown = spellProp.Value.cooldownTimer;
 			cooldown -= deltaTime * spellProp.Value.fireRate;
 			spellProp.Value.cooldownTimer = FMath::Max(cooldown, 0.0f);
+		}
+	}
+
+	for (int i = 0; i < spells.Num(); ++i)
+	{
+		ASpell* spell = spells[i].GetDefaultObject();
+		if (spell->GetProperties().cooldownTimer != 0.0f)
+		{
+			float cooldown = spell->GetProperties().cooldownTimer;
+			cooldown -= deltaTime * spell->GetProperties().fireRate;
+			spell->GetProperties().cooldownTimer = FMath::Max(cooldown, 0.0f);
 		}
 	}
 }

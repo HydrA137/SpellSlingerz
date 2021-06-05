@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "SpellProperties.h"
+#include "Explosion.h"
 #include "Spell.generated.h"
 
 UCLASS()
@@ -42,11 +43,17 @@ public:
 
 	virtual void SetTarget(AActor* target);
 
-	UFUNCTION()
-	virtual void Destroyed() override;
-
+	UFUNCTION(BlueprintCallable)
+	virtual void SpellEnd();
+	
 	UFUNCTION()
 	bool IsCharging() { return isCharging; }
+
+	UFUNCTION()
+	bool IsReady() { return properties.IsReady(); }
+
+	UFUNCTION()
+	void Fired() { properties.Fired(); }
 
 	UFUNCTION()
 	void SetCurrentSpeed(float speed);
@@ -55,7 +62,7 @@ public:
 	float GetCurrentSpeed() { return currentSpeed; }
 
 	UFUNCTION()
-	const FSpellProperties& GetProperties() { return properties; }
+	FSpellProperties& GetProperties() { return properties; }
 
 
 protected:
@@ -69,6 +76,10 @@ protected:
 	UFUNCTION()
 	void OnVelocityChanged();
 
+	/** Server function for spawning projectiles.*/
+	UFUNCTION(Server, Reliable)
+	void HandleExplosion(const FExplosionProperties& explosionProps);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -78,11 +89,11 @@ protected:
 	////////////////////////////////////////////////
 	// Visuals
 	// Sphere component used to test collision.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class USphereComponent* SphereComponent;
 
 	// Static Mesh used to provide a visual representation of the object.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* staticMesh;
 
 	// Movement component for handling projectile movement.
@@ -92,12 +103,12 @@ protected:
 	// Particle system for the visuals of the spell
 	class UParticleSystemComponent* travelEffectComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	class UParticleSystem* travelEffect;
 
 	// Particle used when the projectile impacts against another object and explodes.
-	UPROPERTY(EditAnywhere, Category = "Effects")
-	class UParticleSystem* explosionEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Explosion")
+	TSubclassOf<AExplosion> explosionClass;
 
 	UPROPERTY(ReplicatedUsing = OnTravellingChanged)
 	bool isTraveling;
@@ -117,7 +128,7 @@ protected:
 	////////////////////////////////////////////////
 	// Properties
 	// Spell Properties component 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Properties")
 	FSpellProperties properties;
 	
 	/////////////////////////////////////////////////

@@ -3,7 +3,7 @@
   <ItemGroup>
     <None Include="..\..\MultiplayerLobby.uproject" />
     <Filter Include="Source">
-      <UniqueIdentifier>{7C68CF22-99AB-4BB0-B7DD-7730E0493951}</UniqueIdentifier>
+      <UniqueIdentifier>{3D3CCCF2-6422-4CAF-ADEF-F2EA6EA285E9}</UniqueIdentifier>
     </Filter>
     <None Include="..\..\Source\MultiplayerLobby.Target.cs">
       <Filter>Source</Filter>
@@ -14,7 +14,7 @@
     <None Include="..\..\.gitignore" />
     <None Include="..\..\Config.zip" />
     <Filter Include="Config">
-      <UniqueIdentifier>{78B5E0F9-A78F-49E1-B537-C7B4FCBA6C9E}</UniqueIdentifier>
+      <UniqueIdentifier>{E36FE52B-9052-4235-8E33-5FEDB088FBD2}</UniqueIdentifier>
     </Filter>
     <None Include="..\..\Config\DefaultEditor.ini">
       <Filter>Config</Filter>
@@ -32,7 +32,7 @@
       <Filter>Config</Filter>
     </None>
     <Filter Include="Source\MultiplayerLobby">
-      <UniqueIdentifier>{FE48F3C6-F66A-4E0E-ADB3-A015CBD8A1A9}</UniqueIdentifier>
+      <UniqueIdentifier>{C18DE39C-A286-4C4A-A24A-CE3B54228B3D}</UniqueIdentifier>
     </Filter>
     <ClCompile Include="..\..\Source\MultiplayerLobby\CharacterPawn.cpp">
       <Filter>Source\MultiplayerLobby</Filter>
@@ -86,8 +86,14 @@
       <Filter>Source\MultiplayerLobby</Filter>
     </ClInclude>
     <Filter Include="Source\MultiplayerLobby\Spells">
-      <UniqueIdentifier>{ADF4EFB9-0DBF-471C-AF50-EE42A7372BF2}</UniqueIdentifier>
+      <UniqueIdentifier>{FCB33777-C059-4883-A9A7-0489B0BD79BA}</UniqueIdentifier>
     </Filter>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\Spells\Explosion.cpp">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\Spells\Explosion.h">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\Source\MultiplayerLobby\Spells\MagicMissile.cpp">
       <Filter>Source\MultiplayerLobby\Spells</Filter>
     </ClCompile>
@@ -107,6 +113,11 @@
       <Filter>Source\MultiplayerLobby\Spells</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MultiplayerLobby\Spells\SpellProperties.h">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\Spells\ExplosionProperties.h">
       <Filter>Source\MultiplayerLobby\Spells</Filter>
     </ClInclude>
   </ItemGroup>

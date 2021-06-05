@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "SpellProperties.h"
+#include "Spell.h"
 #include "SpellBook.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -28,11 +29,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	FSpellProperties& GetSpellByName(FString name) 
 	{ 
 		return spellList[name];
 	}
+
+	UFUNCTION(BlueprintCallable)
+	ASpell* GetSpellByName2(FString name);
 
 	///////////////////////
 	// Variables
@@ -40,6 +44,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BluePrintReadWrite, Replicated, Category = "Spells")
 	TMap<FString, FSpellProperties> spellList;
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Replicated, Category = "Spells")
+	TArray<TSubclassOf<ASpell>> spells;
 
 	UPROPERTY(EditAnywhere, BluePrintReadWrite, Replicated, Category = "Spells")
 	FString primarySpellName;

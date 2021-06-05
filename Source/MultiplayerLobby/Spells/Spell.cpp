@@ -12,6 +12,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 #include "SpellProperties.h"
+#include "ExplosionProperties.h"
+#include "Explosion.h"
+#include "Engine/World.h"
 
 // Sets default values
 ASpell::ASpell()
@@ -43,11 +46,12 @@ ASpell::ASpell()
 	ProjectileMovementComponent->MaxSpeed = 1500.0f;// properties.maxSpeed;
 	ProjectileMovementComponent->Velocity = FVector(0.0f, 0.0f, 0.0f);	
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultExplosionEffect(TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion"));
+	/*static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultExplosionEffect(TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion"));
 	if (DefaultExplosionEffect.Succeeded())
 	{
 		explosionEffect = DefaultExplosionEffect.Object;
-	}
+	}*/
+	// TODO: set new explosion effect
 
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultTravelEffect(TEXT("/Game/Particles/P_Sparkles.P_Sparkles"));
 	if (DefaultTravelEffect.Succeeded())
@@ -99,7 +103,7 @@ void ASpell::FireAt(FVector _target)
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		FTimerHandle lifeTimerHandle;
-		GetWorldTimerManager().SetTimer(lifeTimerHandle, this, &ASpell::Destroyed, properties.lifeTime, false);
+		GetWorldTimerManager().SetTimer(lifeTimerHandle, this, &ASpell::SpellEnd, properties.lifeTime, false);
 		OnTravellingChanged();
 	}
 }
@@ -111,7 +115,7 @@ void ASpell::OnImpact(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPr
 		UGameplayStatics::ApplyPointDamage(OtherActor, properties.damage, NormalImpulse, Hit, GetInstigator()->Controller, this, properties.damageType);
 	}
 
-	Destroy();
+	SpellEnd();
 }
 
 void ASpell::BeginCharge()
@@ -141,9 +145,14 @@ void ASpell::Move(float deltaTime)
 			FVector newVelocity = ProjectileMovementComponent->Velocity + targetVelocity * currentSpeed * deltaTime;
 			newVelocity = newVelocity.GetSafeNormal() * currentSpeed;
 			currentVelocity = newVelocity;
-
-			OnVelocityChanged();
 		}
+		else
+		{
+			FVector newVelocity = ProjectileMovementComponent->Velocity.GetSafeNormal() * currentSpeed;
+			currentVelocity = newVelocity;
+		}
+
+		OnVelocityChanged();
 	}
 
 	
@@ -163,15 +172,37 @@ void ASpell::OnVelocityChanged()
 	ProjectileMovementComponent->Velocity = currentVelocity;
 }
 
-void ASpell::Destroyed()
+void ASpell::HandleExplosion_Implementation(const FExplosionProperties& explosionProps)
+{
+	FActorSpawnParameters spawnParameters;
+	spawnParameters.Instigator = GetInstigator();
+	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnParameters.Owner = this->GetOwner();
+
+	if (explosionClass.GetDefaultObject())
+	{
+		AExplosion* explosion = GetWorld()->SpawnActor<AExplosion>(explosionClass, this->GetActorLocation(), this->GetActorRotation(), spawnParameters);
+		if (explosion)
+		{
+			explosion->SetProperties(explosionClass.GetDefaultObject()->GetProperties());
+			explosion->Explode();
+		}
+	}
+}
+
+void ASpell::SpellEnd()
 {
 	FVector spawnLocation = GetActorLocation();
 	if (travelEffectComponent)
 	{
 		travelEffectComponent->DeactivateSystem();
 	}
-	UGameplayStatics::SpawnEmitterAtLocation(this, explosionEffect, spawnLocation, FRotator::ZeroRotator, true, EPSCPoolMethod::AutoRelease);
 
+	if (properties.hasExplosion) // Has an explosion
+	{
+		HandleExplosion(properties.explosionProperties);
+	}
+	
 	Destroy();
 }
 

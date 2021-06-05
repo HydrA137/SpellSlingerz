@@ -58,11 +58,8 @@ protected:
 
 	/** Server function for spawning projectiles.*/
 	UFUNCTION(Server, Reliable)
-	void HandleFire(const FSpellProperties& spell, FVector spawn, FVector target, const FHitResult& hitResult);
-
-	UFUNCTION()
-	bool IsSpellReady(FSpellProperties& spell);
-
+	void HandleFire(ASpell* spellTarget, FVector spawn, FVector target, const FHitResult& hitResult);
+	
 	/** A timer handle used for providing the fire rate delay in-between spawns.*/
 	FTimerHandle FiringTimer;
 	
@@ -117,8 +114,9 @@ private:
 
 	///////////////////////////
 	// Spells
-	UPROPERTY(replicated)
+	UPROPERTY(VisibleAnywhere, replicated, BlueprintReadWrite, Category = "Spells", meta = (AllowPrivateAccess = "true"))
 	class USpellBook* spellBook;
+
 	class ASpell* currentSpell;
 
 protected:
