@@ -13,25 +13,42 @@ class AMPGameMode : public AGameModeBase
 
 public:
 	AMPGameMode();
-
+	
 	UFUNCTION()
 	float GetSpawnDelay() { return SpawnDelay; }
 
 	UFUNCTION()
 	float GetRemoveBodyDelay() { return RemoveBodyDelay; }
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void RespawnPlayer(const ATPCharacter* player);
+
+	UFUNCTION(BlueprintCallable, Server, Reliable)
+	void CheckEndGame();
+	
+	UFUNCTION(BlueprintCallable)
+	class ATPCharacter* GetTopScorer();
+
+	UFUNCTION(BlueprintCallable)
+	int GetScoreGoal() { return ScoreGoal; }
+
+protected:
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 //////
 // Variables
 
-public:
+protected:
 	UPROPERTY(EditAnywhere)
 	float SpawnDelay;
 
 	UPROPERTY(EditAnywhere)
 	float RemoveBodyDelay;
+
+	UPROPERTY(EditAnywhere)
+	int ScoreGoal;
+
+	
 };
 
 

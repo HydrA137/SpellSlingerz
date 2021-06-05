@@ -19,6 +19,12 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(BlueprintCallable)
+	FName GetName() { return CharacterName; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetName(FName name) { CharacterName = name; }
 	
 protected:
 
@@ -116,6 +122,8 @@ private:
 	class ASpell* currentSpell;
 
 protected:
+	UPROPERTY(EditAnywhere)
+	FName CharacterName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Spells")
 	TSubclassOf<class ASpell> SpellClass;
@@ -132,7 +140,7 @@ protected:
 	UFUNCTION()
 	void OnRep_CurrentHealth();
 
-	
+	ATPCharacter* lastDamageDealer;
 
 	/** If true, we are in the process of firing projectiles. */
 	bool bIsFiringWeapon;
