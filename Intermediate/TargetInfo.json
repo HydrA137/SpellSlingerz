@@ -1,0 +1,14 @@
+{
+	"Targets": [
+		{
+			"Name": "MultiplayerLobby",
+			"Path": "R:\\Unreal Engine\\Unreal Projects\\SpellSlingerz\\Source\\MultiplayerLobby.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "MultiplayerLobbyEditor",
+			"Path": "R:\\Unreal Engine\\Unreal Projects\\SpellSlingerz\\Source\\MultiplayerLobbyEditor.Target.cs",
+			"Type": "Editor"
+		}
+	]
+}

@@ -9,4 +9,15 @@
 			"Enabled": true
 		}
 	]
+
+	"Modules": [
+		{
+			"Name": "MultiplayerLobby",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	]
 }

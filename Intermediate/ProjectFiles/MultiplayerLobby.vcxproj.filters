@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\MultiplayerLobby.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{7C68CF22-99AB-4BB0-B7DD-7730E0493951}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\MultiplayerLobby.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\MultiplayerLobbyEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\.gitignore" />
+    <None Include="..\..\Config.zip" />
+    <Filter Include="Config">
+      <UniqueIdentifier>{78B5E0F9-A78F-49E1-B537-C7B4FCBA6C9E}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEditorPerProjectUserSettings.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultInput.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\MultiplayerLobby">
+      <UniqueIdentifier>{FE48F3C6-F66A-4E0E-ADB3-A015CBD8A1A9}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\CharacterPawn.cpp">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\CharacterPawn.h">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\GunGameState.cpp">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\GunGameState.h">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\MPGameMode.cpp">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\MPGameMode.h">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClInclude>
+    <None Include="..\..\Source\MultiplayerLobby\MultiplayerLobby.Build.cs">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\MultiplayerLobby.cpp">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\MultiplayerLobby.h">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\MyClass.cpp">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\MyClass.h">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\SSPlayerState.cpp">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\SSPlayerState.h">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\TestProjectile.cpp">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\TestProjectile.h">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\TPCharacter.cpp">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\TPCharacter.h">
+      <Filter>Source\MultiplayerLobby</Filter>
+    </ClInclude>
+    <Filter Include="Source\MultiplayerLobby\Spells">
+      <UniqueIdentifier>{ADF4EFB9-0DBF-471C-AF50-EE42A7372BF2}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\Spells\MagicMissile.cpp">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\Spells\MagicMissile.h">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\Spells\Spell.cpp">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\Spells\Spell.h">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MultiplayerLobby\Spells\SpellBook.cpp">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\Spells\SpellBook.h">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MultiplayerLobby\Spells\SpellProperties.h">
+      <Filter>Source\MultiplayerLobby\Spells</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
