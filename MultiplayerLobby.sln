@@ -7,9 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{94A6C6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{8E2F6A87-1826-34F4-940C-CC23A48F9FE4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UE4", "Intermediate\ProjectFiles\UE4.vcxproj", "{2A5C40E6-13A9-4B84-A678-CDDEEDBA3EA4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UE4", "ProjectFiles\UE4.vcxproj", "{2A5C40E6-13A9-4B84-A678-CDDEEDBA3EA4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiplayerLobby", "Intermediate\ProjectFiles\MultiplayerLobby.vcxproj", "{720E85B7-824E-4010-A811-1AAC1F0517B3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiplayerLobby", "ProjectFiles\MultiplayerLobby.vcxproj", "{720E85B7-824E-4010-A811-1AAC1F0517B3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Visualizers", "Visualizers", "{1CCEC849-CC72-4C59-8C36-2F7C38706D4C}"
 EndProject

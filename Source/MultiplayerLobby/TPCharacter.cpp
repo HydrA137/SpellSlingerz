@@ -21,7 +21,7 @@
 #include "Spells/SpellProperties.h"
 #include "Spells/SpellBook.h"
 #include "SSPlayerState.h"
-#include "MPGameMode.h"
+#include "SSGameModeBase.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATPCharacter
@@ -130,6 +130,8 @@ void ATPCharacter::HandleDeath()
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCollisionProfileName("Ragdoll");
 
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Handing Death");
+
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	if (IsLocallyControlled())
@@ -161,9 +163,11 @@ void ATPCharacter::FinaliseDeath_Implementation()
 	{
 		FTimerHandle respawnTimerHandle;
 		FTimerHandle removeBodyTimerHandle;
-		AMPGameMode* gameMode = (AMPGameMode*)GetWorld()->GetAuthGameMode();
+		ASSGameModeBase* gameMode = (ASSGameModeBase*)GetWorld()->GetAuthGameMode();
 		float spawnDelay = gameMode->GetSpawnDelay();
 		float removeBodyDelay = gameMode->GetRemoveBodyDelay();
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Finalising Death");
 
 		if (lastDamageDealer != this)
 		{
@@ -183,12 +187,15 @@ void ATPCharacter::FinaliseDeath_Implementation()
 
 void ATPCharacter::Respawn()
 {
-	AMPGameMode* gameMode = (AMPGameMode*)GetWorld()->GetAuthGameMode();
-	gameMode->RespawnPlayer(this);
+	ASSGameModeBase* gameMode = (ASSGameModeBase*)GetWorld()->GetAuthGameMode();
+	gameMode->RespawnPlayer(this, GetClass());
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Respawning");
 }
 
 void ATPCharacter::RemoveBody()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Remove Body");
 	this->Destroy();
 }
 
@@ -210,10 +217,10 @@ float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& Dam
 
 	FString ownerMessage = "Last: " + lastDamageDealer->GetName().ToString() + ", This: " + this->GetName().ToString();
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, ownerMessage);
-	if (lastDamageDealer == this)
+	/*if (lastDamageDealer == this)
 	{
 		return 0;
-	}
+	}*/
 
 	SetCurrentHealth(damageApplied);
 	return damageApplied;
