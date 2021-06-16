@@ -32,10 +32,10 @@ public :
 
 protected:
 	UFUNCTION()
-		void OnRep_TopScore();
+	void OnRep_TopScore();
 
 	UFUNCTION()
-		void OnRep_TopScorer();
+	void OnRep_TopScorer();
 	
 	// variables
 protected:

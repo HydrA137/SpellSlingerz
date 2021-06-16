@@ -2,7 +2,7 @@
 
 
 #include "SSPlayerState.h"
-#include "MPGameMode.h"
+#include "SSGameModeBase.h"
 #include "Net/UnrealNetwork.h"
 
 void ASSPlayerState::GetLifetimeReplicatedProps(TArray <FLifetimeProperty>& OutLifetimeProps) const
@@ -29,7 +29,7 @@ void ASSPlayerState::AddKill()
 	{
 		kills += 1;
 
-		AMPGameMode* gameMode = (AMPGameMode*)GetWorld()->GetAuthGameMode();
+		ASSGameModeBase* gameMode = (ASSGameModeBase*)GetWorld()->GetAuthGameMode();
 		gameMode->CheckEndGame();
 	}
 }
@@ -40,7 +40,7 @@ void ASSPlayerState::RemoveKill()
 	{
 		kills += 1;
 
-		AMPGameMode* gameMode = (AMPGameMode*)GetWorld()->GetAuthGameMode();
+		ASSGameModeBase* gameMode = (ASSGameModeBase*)GetWorld()->GetAuthGameMode();
 		//gameMode->CheckEndGame();
 	}
 }
