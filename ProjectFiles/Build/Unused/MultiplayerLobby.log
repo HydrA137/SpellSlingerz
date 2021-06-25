@@ -1,3 +1,42 @@
-﻿  Using 'git status' to determine working set for adaptive non-unity build (R:\Unreal Engine\Unreal Projects\SpellSlingerz).
-  Target is up to date
-  Total execution time: 0.80 seconds
+﻿  Using 'git status' to determine working set for adaptive non-unity build (D:\Unreal Engine Projects\MultiplayerLobby).
+  Creating makefile for MultiplayerLobbyEditor (no existing makefile)
+  Parsing headers for MultiplayerLobbyEditor
+    Running UnrealHeaderTool "D:\Unreal Engine Projects\MultiplayerLobby\MultiplayerLobby.uproject" "D:\Unreal Engine Projects\MultiplayerLobby\Intermediate\Build\Win64\MultiplayerLobbyEditor\Development\MultiplayerLobbyEditor.uhtmanifest" -LogCmds="loginit warning, logexit warning, logdatabase error" -Unattended -WarningsAsErrors -abslog="C:\Users\Jamie\AppData\Local\UnrealBuildTool\Log_UHT.txt" -installed
+  Reflection code generated for MultiplayerLobbyEditor in 7.621382 seconds
+  Building MultiplayerLobbyEditor...
+  Using Visual Studio 2019 14.28.29913 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.28.29910) and Windows 10.0.19041.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+  Building 30 actions with 12 processes...
+    [1/30] Default.rc2
+    [2/30] SharedPCH.Engine.ShadowErrors.cpp
+    [3/30] MyClass.cpp
+    [4/30] MultiplayerLobby.cpp
+    [5/30] CharacterPawn.cpp
+    [6/30] GunGameState.cpp
+    [7/30] SSPlayerState.cpp
+    [8/30] SpellBook.cpp
+    [9/30] TestProjectile.cpp
+    [10/30] CharacterPawn.gen.cpp
+    [11/30] Explosion.gen.cpp
+    [12/30] ExplosionProperties.gen.cpp
+    [13/30] Explosion.cpp
+    [14/30] MagicMissile.cpp
+    [15/30] Spell.cpp
+    [16/30] SSGameModeBase.cpp
+    [17/30] MultiplayerLobby.init.gen.cpp
+    [18/30] MagicMissile.gen.cpp
+    [19/30] GunGameState.gen.cpp
+    [20/30] SpellProperties.gen.cpp
+    [21/30] Spell.gen.cpp
+    [22/30] SpellBook.gen.cpp
+    [23/30] SSPlayerState.gen.cpp
+    [24/30] TestProjectile.gen.cpp
+    [25/30] SSGameModeBase.gen.cpp
+    [26/30] TPCharacter.cpp
+    [27/30] TPCharacter.gen.cpp
+    [28/30] UE4Editor-MultiplayerLobby-0001.lib
+       Creating library D:\Unreal Engine Projects\MultiplayerLobby\Intermediate\Build\Win64\UE4Editor\Development\MultiplayerLobby\UE4Editor-MultiplayerLobby-0001.lib and object D:\Unreal Engine Projects\MultiplayerLobby\Intermediate\Build\Win64\UE4Editor\Development\MultiplayerLobby\UE4Editor-MultiplayerLobby-0001.exp
+    [29/30] UE4Editor-MultiplayerLobby-0001.dll
+       Creating library D:\Unreal Engine Projects\MultiplayerLobby\Intermediate\Build\Win64\UE4Editor\Development\MultiplayerLobby\UE4Editor-MultiplayerLobby-0001.suppressed.lib and object D:\Unreal Engine Projects\MultiplayerLobby\Intermediate\Build\Win64\UE4Editor\Development\MultiplayerLobby\UE4Editor-MultiplayerLobby-0001.suppressed.exp
+    [30/30] MultiplayerLobbyEditor.target
+  Total time in Parallel executor: 19.42 seconds
+  Total execution time: 37.68 seconds
