@@ -48,7 +48,7 @@ ATPCharacter::ATPCharacter()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->JumpZVelocity = 600.f;
+	GetCharacterMovement()->JumpZVelocity = 1800.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
@@ -71,7 +71,7 @@ ATPCharacter::ATPCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	SpellClass = ASpell::StaticClass();
-	MaxHealth = 100.0f;
+	MaxHealth = 999999999.0f;
 	CurrentHealth = MaxHealth;
 	bIsFiringWeapon = false;
 }
@@ -129,6 +129,7 @@ void ATPCharacter::HandleDeath()
 
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCollisionProfileName("Ragdoll");
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Handing Death");
 
@@ -247,7 +248,7 @@ void ATPCharacter::Firing()
 			TArray<AActor*> toIgnore = { this };
 			FHitResult result;
 
-			if (UKismetSystemLibrary::SphereTraceSingle(GetWorld(), start, end, 25.0f, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, toIgnore, EDrawDebugTrace::None, result, true))
+			if (UKismetSystemLibrary::SphereTraceSingle(GetWorld(), start, end, 25.0f, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, toIgnore, EDrawDebugTrace::Persistent, result, true))
 			{
 				target = result.ImpactPoint;
 			}
