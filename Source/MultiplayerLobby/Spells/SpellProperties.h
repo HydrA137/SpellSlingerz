@@ -27,6 +27,11 @@ struct FSpellProperties
 	{
 		cooldownTimer = 1.0f;
 	}
+
+	void Reset()
+	{
+		cooldownTimer = 0.0f;
+	}
 	
 	///////////////////
 	// Basic
@@ -38,6 +43,9 @@ struct FSpellProperties
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Basic")
 	bool isHoming;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Basic")
+	bool isHeld;
 
 	///////////////////
 	// Movement

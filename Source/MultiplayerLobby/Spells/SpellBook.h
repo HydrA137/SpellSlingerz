@@ -19,31 +19,30 @@ public:
 
 	void GetLifetimeReplicatedProps(TArray <FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UFUNCTION(BlueprintCallable)
+	virtual void OnKill(int score);
+
+	UFUNCTION(BlueprintCallable)
+	ASpell* GetSpellByName(FString name);
+
+	UFUNCTION(BlueprintCallable)
+	virtual ASpell* GetPrimarySpell() { return 0; }
+
+	UFUNCTION(BlueprintCallable)
+	virtual ASpell* GetSecondarySpell() { return 0; }
+
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	virtual void UpdateCooldowns(float deltaTime);
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UFUNCTION(BlueprintCallable)
-	FSpellProperties& GetSpellByName(FString name) 
-	{ 
-		return spellList[name];
-	}
-
-	UFUNCTION(BlueprintCallable)
-	ASpell* GetSpellByName2(FString name);
-
 	///////////////////////
 	// Variables
 protected:
-
-	UPROPERTY(EditAnywhere, BluePrintReadWrite, Replicated, Category = "Spells")
-	TMap<FString, FSpellProperties> spellList;
 
 	UPROPERTY(EditAnywhere, BluePrintReadWrite, Replicated, Category = "Spells")
 	TArray<TSubclassOf<ASpell>> spells;

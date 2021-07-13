@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/SceneComponent.h"
@@ -19,7 +20,7 @@
 #include "Spells/Spell.h"
 #include "Spells/MagicMissile.h"
 #include "Spells/SpellProperties.h"
-#include "Spells/SpellBook.h"
+#include "Spells/GunGameSpellBook.h"
 #include "SSPlayerState.h"
 #include "SSGameModeBase.h"
 
@@ -29,6 +30,7 @@
 ATPCharacter::ATPCharacter()
 {
 	bReplicates = true;
+	isCasting = false;
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -62,7 +64,7 @@ ATPCharacter::ATPCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	spellBook = CreateDefaultSubobject<USpellBook>(TEXT("SpellBook"));
+	spellBook = CreateDefaultSubobject<UGunGameSpellBook>(TEXT("SpellBook"));
 	spellBook->SetIsReplicated(true);
 	spellBook->SetNetAddressable();
 	this->OwnsComponent(spellBook);
@@ -73,7 +75,6 @@ ATPCharacter::ATPCharacter()
 	SpellClass = ASpell::StaticClass();
 	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
-	bIsFiringWeapon = false;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -145,6 +146,11 @@ void ATPCharacter::SendDeath_Implementation()
 	KillAllMes();
 }
 
+void ATPCharacter::SendKill_Implementation(int score)
+{
+	OnKill(score);
+}
+
 void ATPCharacter::KillAllMes_Implementation()
 {
 	if (!IsLocallyControlled())
@@ -171,17 +177,28 @@ void ATPCharacter::FinaliseDeath_Implementation()
 
 		if (lastDamageDealer != this)
 		{
-			lastDamageDealer->GetPlayerState<ASSPlayerState>()->AddKill();
-			this->GetPlayerState<ASSPlayerState>()->AddDeath();
+			lastDamageDealer->SendKill(1);
+			//lastDamageDealer->GetPlayerState<ASSPlayerState>()->AddKill();			
+			//this->GetPlayerState<ASSPlayerState>()->AddDeath();
 		}
 		else
 		{
-			this->GetPlayerState<ASSPlayerState>()->RemoveKill();
-			this->GetPlayerState<ASSPlayerState>()->AddDeath();
+			this->SendKill(-1);
+			//this->GetPlayerState<ASSPlayerState>()->RemoveKill();			
+			//this->GetPlayerState<ASSPlayerState>()->AddDeath();
 		}
 
 		GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ATPCharacter::Respawn, spawnDelay, false);
 		GetWorldTimerManager().SetTimer(removeBodyTimerHandle, this, &ATPCharacter::RemoveBody, removeBodyDelay, false);
+	}
+}
+
+void ATPCharacter::OnKill(int score)
+{
+	if (IsLocallyControlled())
+	{
+		spellBook->OnKill(score);
+		primarySpell = 0;
 	}
 }
 
@@ -233,40 +250,72 @@ void ATPCharacter::StartFire()
 
 void ATPCharacter::Firing()
 {
-	if (!currentSpell)
+	if (!primarySpell)
 	{
-		ASpell* spell = spellBook->GetSpellByName2("Magic Missile");
-		if (spell && spell->IsReady())
+		primarySpell = spellBook->GetPrimarySpell();
+	}
+	else if (primarySpell->IsReady() && !isCasting)
+	{
+		// Start Firing Animation
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Start Cast Spell");
+		DoCastingAnimation();
+	}
+}
+
+void ATPCharacter::DoCastingAnimation()
+{
+	bool bPlayedSuccessfully = false;
+	isCasting = true;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && castingAnimMontage)
+	{
+		const float MontageLength = AnimInstance->Montage_Play(castingAnimMontage, FMath::Min(primarySpell->GetProperties().fireRate * 1.2f, 2.0f), EMontagePlayReturnType::Duration, 0.0f);
+		bPlayedSuccessfully = (MontageLength > 0.f);
+	}
+}
+
+void ATPCharacter::ActivateSpell()
+{
+	if (this)
+	{
+		isCasting = false;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Activate Spell");
+		FVector spawnLocation = GetSpellCastPoint() + (GetControlRotation().Vector() * 120.0f);
+
+		FVector start = GetFollowCamera()->GetComponentLocation();
+		FVector end = start + (GetFollowCamera()->GetForwardVector() * primarySpell->GetProperties().range);
+		FVector target = end;
+
+		TArray<AActor*> toIgnore = { this };
+		FHitResult result;
+
+		if (UKismetSystemLibrary::SphereTraceSingle(GetWorld(), start, end, 25.0f, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, toIgnore, EDrawDebugTrace::None, result, true))
 		{
-			FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 120.0f) + (GetActorUpVector() * 50.0f);
-			
-			FVector start = FVector(spawnLocation);
-			FVector end = start + (GetFollowCamera()->GetForwardVector() * spell->GetProperties().range);
-			FVector target = end;
-
-			TArray<AActor*> toIgnore = { this };
-			FHitResult result;
-
-			if (UKismetSystemLibrary::SphereTraceSingle(GetWorld(), start, end, 25.0f, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, toIgnore, EDrawDebugTrace::None, result, true))
-			{
-				target = result.ImpactPoint;
-			}
-			HandleFire(spell, start, end, result);
-			spell->Fired();
+			target = result.ImpactPoint;
 		}
+		HandleFire(primarySpell, spawnLocation, target, result);
+		primarySpell->Fired();
 	}
 }
 
 void ATPCharacter::StopFire()
 {
 	GetWorldTimerManager().ClearTimer(firingTimer);
-	if (currentSpell)
+	if (activeSpell)
 	{
-		if (currentSpell->GetProperties().isChargable &&
-			currentSpell->IsCharging())
+		if (activeSpell->GetProperties().isChargable &&
+			activeSpell->IsCharging())
 		{
-			currentSpell->EndCharge();
-			currentSpell = 0;
+			activeSpell->EndCharge();
+			activeSpell = 0;
+		}
+		else if (activeSpell->GetProperties().isHeld)
+		{
+			activeSpell->SpellEnd();
+			activeSpell = 0;
+			primarySpell->GetProperties().Reset();
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			AnimInstance->Montage_Resume(castingAnimMontage);
 		}
 	}
 }
@@ -280,22 +329,26 @@ void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn,
 	spawnParameters.Owner = this;	
 	
 	// Get Spell based on type
-	currentSpell = GetWorld()->SpawnActor<ASpell>(spellTarget->GetClass(), spawn, spawnRotation, spawnParameters);
-	currentSpell->PrepareSpell(target, spellTarget->GetProperties());
+	activeSpell = GetWorld()->SpawnActor<ASpell>(spellTarget->GetClass(), spawn, spawnRotation, spawnParameters);
+	activeSpell->PrepareSpell(target, spellTarget->GetProperties());
 	
-	if (currentSpell->GetProperties().isHoming && hitResult.Actor.IsValid())
+	if (activeSpell->GetProperties().isHoming && hitResult.Actor.IsValid())
 	{
 		ATPCharacter* targetPlayer = dynamic_cast<ATPCharacter*>(hitResult.Actor.Get());
 		if (targetPlayer)
 		{
-			currentSpell->SetTarget(hitResult.Actor.Get());
+			dynamic_cast<AProjectileSpell*>(activeSpell)->SetHomingTarget(hitResult.Actor.Get());
 		}
 	}
 
-	if (!currentSpell->GetProperties().isChargable)
+	if (!activeSpell->GetProperties().isChargable)
 	{
-		currentSpell->Fire();
-		currentSpell = 0;
+		activeSpell->Fire();
+		if (!activeSpell->GetProperties().isHeld)
+		{
+			// if not held we fire and forget.
+			activeSpell = 0;
+		}
 	}
 }
 
@@ -366,3 +419,21 @@ void ATPCharacter::MoveRight(float Value)
 	}
 }
 
+FHitResult ATPCharacter::GetLookPoint(float distance, float radius)
+{
+	TArray<AActor*> toIgnore = { this };
+	FHitResult result;
+	FVector start = GetFollowCamera()->GetComponentLocation();
+	FVector end = start + (GetFollowCamera()->GetForwardVector() * distance);
+	if (UKismetSystemLibrary::SphereTraceSingle(GetWorld(), start, end, radius, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, toIgnore, EDrawDebugTrace::None, result, true))
+	{
+		return result;
+	}
+
+	return result; 
+}
+
+FVector ATPCharacter::GetSpellCastPoint()
+{
+	return GetMesh()->GetBoneLocation("Character1_RightHand");
+}

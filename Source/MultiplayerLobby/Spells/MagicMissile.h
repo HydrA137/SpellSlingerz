@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Spell.h"
+#include "ProjectileSpell.h"
 #include "MagicMissile.generated.h"
 
 UCLASS()
-class MULTIPLAYERLOBBY_API AMagicMissile : public ASpell
+class MULTIPLAYERLOBBY_API AMagicMissile : public AProjectileSpell
 {
 	GENERATED_BODY()
 	

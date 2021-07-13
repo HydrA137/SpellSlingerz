@@ -25,6 +25,24 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetName(FName name) { CharacterName = name; }
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void ActivateSpell();
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	FHitResult GetLookPoint(float distance, float radius);
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetSpellCastPoint();
+
+	UFUNCTION(BlueprintCallable)
+	class UAnimMontage* GetCastingAnim() { return castingAnimMontage; }
+
+	UFUNCTION(BlueprintCallable)
+	class ASpell* GetActiveSpell() { return activeSpell; }
+
+	UFUNCTION(BlueprintCallable)
+	virtual void OnKill(int score);		
 	
 protected:
 
@@ -51,6 +69,9 @@ protected:
 	void StartFire();
 
 	void Firing();
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	void DoCastingAnimation();	
 
 	/** Function for ending weapon fire. Once this is called, the player can use StartFire again.*/
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
@@ -91,6 +112,9 @@ protected:
 	void SendDeath();
 
 	UFUNCTION(NetMulticast, Reliable)
+	void SendKill(int score);
+
+	UFUNCTION(NetMulticast, Reliable)
 	void KillAllMes();
 
 	UFUNCTION(Server, Reliable)
@@ -117,11 +141,15 @@ private:
 	UPROPERTY(VisibleAnywhere, replicated, BlueprintReadWrite, Category = "Spells", meta = (AllowPrivateAccess = "true"))
 	class USpellBook* spellBook;
 
-	class ASpell* currentSpell;
+	class ASpell* primarySpell;
+	class ASpell* activeSpell;
 
 protected:
 	UPROPERTY(EditAnywhere)
 	FName CharacterName;
+
+	UPROPERTY(EditAnywhere, Category = "Visuals")
+	class UAnimMontage* castingAnimMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Spells")
 	TSubclassOf<class ASpell> SpellClass;
@@ -140,8 +168,7 @@ protected:
 
 	ATPCharacter* lastDamageDealer;
 
-	/** If true, we are in the process of firing projectiles. */
-	bool bIsFiringWeapon;
+	bool isCasting;
 
 public:
 	ATPCharacter();
