@@ -251,6 +251,7 @@ void ATPCharacter::StartFire()
 
 void ATPCharacter::Firing()
 {
+	
 	if (!primarySpell)
 	{
 		primarySpell = spellBook->GetPrimarySpell();
@@ -270,6 +271,7 @@ void ATPCharacter::DoCastingAnimation()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && castingAnimMontage)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Starting Animation");
 		const float MontageLength = AnimInstance->Montage_Play(castingAnimMontage, FMath::Min(primarySpell->GetProperties().fireRate * 1.2f, 2.0f), EMontagePlayReturnType::Duration, 0.0f);
 		bPlayedSuccessfully = (MontageLength > 0.f);
 	}
@@ -292,21 +294,7 @@ void ATPCharacter::ActivateSpell()
 
 		if (UKismetSystemLibrary::SphereTraceSingle(GetWorld(), start, end, 25.0f, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, toIgnore, EDrawDebugTrace::None, result, true))
 		{
-			FVector spawnLocation = GetActorLocation() + (GetControlRotation().Vector() * 120.0f) + (GetActorUpVector() * 50.0f);
-			
-			FVector start = FVector(spawnLocation);
-			FVector end = start + (GetFollowCamera()->GetForwardVector() * spell->GetProperties().range);
-			FVector target = end;
-
-			TArray<AActor*> toIgnore = { this };
-			FHitResult result;
-
-			if (UKismetSystemLibrary::SphereTraceSingle(GetWorld(), start, end, 25.0f, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, toIgnore, EDrawDebugTrace::Persistent, result, true))
-			{
-				target = result.ImpactPoint;
-			}
-			HandleFire(spell, start, end, result);
-			spell->Fired();
+			target = result.ImpactPoint;
 		}
 		HandleFire(primarySpell, spawnLocation, target, result);
 		primarySpell->Fired();

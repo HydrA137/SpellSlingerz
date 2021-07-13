@@ -9,13 +9,16 @@ void USpellAttackAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 {
     ATPCharacter* character = dynamic_cast<ATPCharacter*>(MeshComp->GetOwner());
 
-    character->ActivateSpell();
-    ASpell* spell = character->GetActiveSpell();
-
-    if (spell && spell->GetProperties().isHeld)
+    if (character)
     {
-        UAnimInstance* AnimInstance = character->GetMesh()->GetAnimInstance();
-        AnimInstance->Montage_Pause(character->GetCastingAnim());
+        character->ActivateSpell();
+        ASpell* spell = character->GetActiveSpell();
+
+        if (spell && spell->GetProperties().isHeld)
+        {
+            UAnimInstance* AnimInstance = character->GetMesh()->GetAnimInstance();
+            AnimInstance->Montage_Pause(character->GetCastingAnim());
+        }
     }
 
 }
