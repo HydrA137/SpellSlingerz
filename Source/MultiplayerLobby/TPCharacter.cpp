@@ -246,15 +246,17 @@ float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& Dam
 
 void ATPCharacter::StartFire()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Start Fire");
 	GetWorldTimerManager().SetTimer(firingTimer, this, &ATPCharacter::Firing, 0.01f, true, 0.0f);
 }
 
 void ATPCharacter::Firing()
 {
-	
 	if (!primarySpell)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Why though?");
 		primarySpell = spellBook->GetPrimarySpell();
+		primarySpell->GetProperties().cooldownTimer = 0.0f;
 	}
 	else if (primarySpell->IsReady() && !isCasting)
 	{
@@ -297,7 +299,7 @@ void ATPCharacter::ActivateSpell()
 			target = result.ImpactPoint;
 		}
 		HandleFire(primarySpell, spawnLocation, target, result);
-		primarySpell->Fired();
+		
 	}
 }
 
@@ -309,11 +311,14 @@ void ATPCharacter::StopFire()
 		if (activeSpell->GetProperties().isChargable &&
 			activeSpell->IsCharging())
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken");
 			activeSpell->EndCharge();
+			primarySpell->Fired();
 			activeSpell = 0;
 		}
 		else if (activeSpell->GetProperties().isHeld)
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken2");
 			activeSpell->SpellEnd();
 			activeSpell = 0;
 			primarySpell->GetProperties().Reset();
@@ -325,11 +330,12 @@ void ATPCharacter::StopFire()
 
 void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn, FVector target, const FHitResult& hitResult)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "firing");
 	FRotator spawnRotation = (target - spawn).Rotation();
 
 	FActorSpawnParameters spawnParameters;
 	spawnParameters.Instigator = GetInstigator();
-	spawnParameters.Owner = this;	
+	spawnParameters.Owner = this;
 	
 	// Get Spell based on type
 	activeSpell = GetWorld()->SpawnActor<ASpell>(spellTarget->GetClass(), spawn, spawnRotation, spawnParameters);
@@ -344,14 +350,20 @@ void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn,
 		}
 	}
 
-	if (!activeSpell->GetProperties().isChargable)
+	if (activeSpell->GetProperties().isChargable == false)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Shoulndt see this");
 		activeSpell->Fire();
+		primarySpell->Fired();
 		if (!activeSpell->GetProperties().isHeld)
 		{
 			// if not held we fire and forget.
 			activeSpell = 0;
 		}
+	}
+	else if (activeSpell->GetProperties().isHeld == true)
+	{
+		activeSpell->BeginCharge();
 	}
 }
 

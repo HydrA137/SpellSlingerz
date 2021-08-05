@@ -20,11 +20,12 @@ struct FSpellProperties
 	
 	bool IsReady() 
 	{ 
-		return cooldownTimer <= 0.0f; 
+		return cooldownTimer <= 0.0f;
 	}
 
 	void Fired()
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Resetting Cooldown");
 		cooldownTimer = 1.0f;
 	}
 
@@ -33,6 +34,7 @@ struct FSpellProperties
 		cooldownTimer = 0.0f;
 	}
 	
+
 	///////////////////
 	// Basic
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Basic")
