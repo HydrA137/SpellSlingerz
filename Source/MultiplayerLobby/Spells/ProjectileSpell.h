@@ -60,7 +60,8 @@ protected:
 	UFUNCTION()
 	void OnVelocityChanged();
 
-
+private:
+	FVector AddSpread(FVector direction);
 
 	// Variable
 protected:
