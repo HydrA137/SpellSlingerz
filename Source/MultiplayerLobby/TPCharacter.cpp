@@ -299,6 +299,7 @@ void ATPCharacter::ActivateSpell()
 			target = result.ImpactPoint;
 		}
 		HandleFire(primarySpell, spawnLocation, target, result);
+		primarySpell->Fired();
 		
 	}
 }
@@ -354,7 +355,7 @@ void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn,
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Shoulndt see this");
 		activeSpell->Fire();
-		primarySpell->Fired();
+		
 		if (!activeSpell->GetProperties().isHeld)
 		{
 			// if not held we fire and forget.
