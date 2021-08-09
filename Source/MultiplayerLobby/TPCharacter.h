@@ -74,12 +74,15 @@ protected:
 	void DoCastingAnimation();	
 
 	/** Function for ending weapon fire. Once this is called, the player can use StartFire again.*/
+	UFUNCTION(Server, Reliable)
+	void Server_StopFire();
+
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void StopFire();
 
 	/** Server function for spawning projectiles.*/
 	UFUNCTION(Server, Reliable)
-	void HandleFire(ASpell* spellTarget, FVector spawn, FVector target, const FHitResult& hitResult);
+	void HandleFire(ASpell* spellTarget, FVector spawn, FVector _target, const FHitResult& hitResult);
 	
 	/** A timer handle used for providing the fire rate delay in-between spawns.*/
 	FTimerHandle FiringTimer;

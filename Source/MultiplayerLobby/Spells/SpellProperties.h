@@ -27,6 +27,7 @@ struct FSpellProperties
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Resetting Cooldown");
 		cooldownTimer = 1.0f;
+		spreadAngle = FMath::Min(spreadAngle + spreadAngleChange, maxSpreadAngle);
 	}
 
 	void Reset()
@@ -64,10 +65,22 @@ struct FSpellProperties
 	float range;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float lifeTime; //seconds
+	float minLifeTime; //seconds
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float maxLifeTime; //seconds
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float minGravWeight; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float maxGravWeight;
 
 	//////////////////
 	// Offense
+	UPROPERTY(BlueprintReadOnly)
+	float cooldownTimer = 0.0f;
+
 	//The damage type and damage that will be done by this projectile
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	TSubclassOf<class UDamageType> damageType;
@@ -80,10 +93,29 @@ struct FSpellProperties
 	float fireRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
-	bool isChargable;
+	int minProjectileCount;
 
-	UPROPERTY(BlueprintReadOnly)
-	float cooldownTimer = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	int maxProjectileCount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	float spreadAngle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	float minSpreadAngle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	float maxSpreadAngle;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	float spreadAngleChange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	float weight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	bool isChargable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	bool hasExplosion = false;

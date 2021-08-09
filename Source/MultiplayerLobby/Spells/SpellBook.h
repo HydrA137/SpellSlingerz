@@ -40,6 +40,8 @@ protected:
 
 	virtual void UpdateCooldowns(float deltaTime);
 
+	virtual void UpdateSpreads(float deltaTime);
+
 	///////////////////////
 	// Variables
 protected:

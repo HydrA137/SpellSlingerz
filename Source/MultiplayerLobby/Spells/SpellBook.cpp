@@ -61,11 +61,22 @@ void USpellBook::UpdateCooldowns(float deltaTime)
 	for (int i = 0; i < spells.Num(); ++i)
 	{
 		ASpell* spell = spells[i].GetDefaultObject();
+		float cooldown = spell->GetProperties().cooldownTimer;
 		if (spell->GetProperties().cooldownTimer != 0.0f && !spell->GetProperties().isHeld)
 		{
-			float cooldown = spell->GetProperties().cooldownTimer;
 			cooldown -= deltaTime * spell->GetProperties().fireRate;
 			spell->GetProperties().cooldownTimer = FMath::Max(cooldown, 0.0f);
 		}
+	}
+}
+
+void USpellBook::UpdateSpreads(float deltaTime)
+{
+	for (int i = 0; i < spells.Num(); ++i)
+	{
+		ASpell* spell = spells[i].GetDefaultObject();
+		float spreadAngle = spell->GetProperties().spreadAngle;
+		spreadAngle -= deltaTime;
+		spell->GetProperties().spreadAngle = FMath::Max(spell->GetProperties().minSpreadAngle, spreadAngle);
 	}
 }

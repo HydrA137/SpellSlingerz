@@ -74,7 +74,7 @@ void AAOESpell::Server_SpawnSpellActor_Implementation()
 
 void AAOESpell::SpawnSpellActor()
 {
-	if (/*HasAuthority()*/ true)
+	if (HasAuthority())
 	{
 		//Copied Code to spawn actor
 		UObject* SpawnActor = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("/Game/_Main/Spells/Icicle")));
@@ -102,7 +102,7 @@ void AAOESpell::SpawnSpellActor()
 	}
 	else
 	{
-
+		Server_SpawnSpellActor();
 	}
 }
 

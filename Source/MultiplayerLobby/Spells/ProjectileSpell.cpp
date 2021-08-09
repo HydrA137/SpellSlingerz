@@ -44,7 +44,6 @@ AProjectileSpell::AProjectileSpell()
 	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->SetUpdatedComponent(SphereComponent);
 	ProjectileMovementComponent->bRotationFollowsVelocity = false;
-	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 	ProjectileMovementComponent->InitialSpeed = 1000.0f;// properties.initialSpeed;
 	ProjectileMovementComponent->MaxSpeed = 1500.0f;// properties.maxSpeed;
 	ProjectileMovementComponent->Velocity = FVector(0.0f, 0.0f, 0.0f);	
@@ -63,6 +62,7 @@ AProjectileSpell::AProjectileSpell()
 	}
 
 	isTraveling = false;
+	properties.cooldownTimer = 0.0f;
 }
 
 void AProjectileSpell::GetLifetimeReplicatedProps(TArray <FLifetimeProperty>& OutLifetimeProps) const
@@ -83,6 +83,7 @@ void AProjectileSpell::SetHomingTarget(AActor* _homingTarget)
 void AProjectileSpell::PrepareSpell(FVector _target, const FSpellProperties& spellProps)
 {
 	Super::PrepareSpell(_target, spellProps);
+	ProjectileMovementComponent->ProjectileGravityScale = FMath::RandRange(properties.minGravWeight, properties.maxGravWeight);
 }
 
 void AProjectileSpell::Fire()
@@ -93,7 +94,7 @@ void AProjectileSpell::Fire()
 void AProjectileSpell::FireAt(FVector _target)
 {
 	target = _target;
-	direction = _target - GetActorLocation();
+	direction = AddSpread(_target - GetActorLocation());
 	direction.Normalize();
 	isTraveling = true;
 
@@ -105,9 +106,27 @@ void AProjectileSpell::FireAt(FVector _target)
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		FTimerHandle lifeTimerHandle;
-		GetWorldTimerManager().SetTimer(lifeTimerHandle, this, &ASpell::SpellEnd, properties.lifeTime, false);
+		float lifeTime = FMath::RandRange(properties.minLifeTime, properties.maxLifeTime);
+		GetWorldTimerManager().SetTimer(lifeTimerHandle, this, &ASpell::SpellEnd, lifeTime, false);
 		OnTravellingChanged();
 	}
+}
+
+FVector AProjectileSpell::AddSpread(FVector curDirection)
+{
+	float upDown = FMath::RandRange(-GetProperties().spreadAngle, GetProperties().spreadAngle);
+	float leftRight = FMath::RandRange(-GetProperties().spreadAngle, GetProperties().spreadAngle);
+	FVector2D spreadArea = FVector2D(leftRight * 10.0f, upDown * 10.0f);
+	spreadArea.Normalize();
+	spreadArea *= FVector2D(leftRight, upDown);
+
+	FRotator newRotator = FRotator(GetActorRotation().Pitch + upDown, GetActorRotation().Yaw + leftRight, GetActorRotation().Roll);
+
+	SetActorRotation(newRotator);
+
+	curDirection = FRotationMatrix(GetActorRotation()).GetScaledAxis(EAxis::X);
+
+	return curDirection;
 }
 
 void AProjectileSpell::OnImpact(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

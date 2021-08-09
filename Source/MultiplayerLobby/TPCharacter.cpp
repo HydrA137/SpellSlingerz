@@ -258,7 +258,8 @@ void ATPCharacter::Firing()
 		primarySpell = spellBook->GetPrimarySpell();
 		primarySpell->GetProperties().cooldownTimer = 0.0f;
 	}
-	else if (primarySpell->IsReady() && !isCasting)
+	
+	if (primarySpell->IsReady() && !isCasting)
 	{
 		// Start Firing Animation
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Start Cast Spell");
@@ -285,7 +286,7 @@ void ATPCharacter::ActivateSpell()
 	{
 		isCasting = false;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Activate Spell");
-		FVector spawnLocation = GetSpellCastPoint() + (GetControlRotation().Vector() * 120.0f);
+		FVector spawnLocation = GetSpellCastPoint();
 
 		FVector start = GetFollowCamera()->GetComponentLocation();
 		FVector end = start + (GetFollowCamera()->GetForwardVector() * primarySpell->GetProperties().range);
@@ -304,27 +305,51 @@ void ATPCharacter::ActivateSpell()
 	}
 }
 
+void ATPCharacter::Server_StopFire_Implementation()
+{
+	StopFire();
+}
+
 void ATPCharacter::StopFire()
 {
-	GetWorldTimerManager().ClearTimer(firingTimer);
-	if (activeSpell)
-	{
-		if (activeSpell->GetProperties().isChargable &&
-			activeSpell->IsCharging())
+	if (HasAuthority()) {
+	
+		GetWorldTimerManager().ClearTimer(firingTimer);
+		if (activeSpell)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken");
-			activeSpell->EndCharge();
-			primarySpell->Fired();
-			activeSpell = 0;
+			if (activeSpell->GetProperties().isChargable &&
+				activeSpell->IsCharging())
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken");
+				activeSpell->EndCharge();
+				activeSpell = 0;
+			}
+			else if (activeSpell->GetProperties().isHeld)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken2");
+				activeSpell->SpellEnd();
+				activeSpell = 0;
+			}
 		}
-		else if (activeSpell->GetProperties().isHeld)
+	}
+	else 
+	{
+		Server_StopFire();
+		if (primarySpell)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken2");
-			activeSpell->SpellEnd();
-			activeSpell = 0;
-			primarySpell->GetProperties().Reset();
-			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-			AnimInstance->Montage_Resume(castingAnimMontage);
+			if (primarySpell->GetProperties().isChargable &&
+				primarySpell->IsCharging())
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken");
+				primarySpell->Fired();
+			}
+			else if (primarySpell->GetProperties().isHeld)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken2");
+				primarySpell->GetProperties().Reset();
+				UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+				AnimInstance->Montage_Resume(castingAnimMontage);
+			}
 		}
 	}
 }
