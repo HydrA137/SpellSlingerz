@@ -57,31 +57,53 @@ void AAOESpell::SpellEnd()
 	//Spawn something to deal dmg
 	isCharging = false;
 
-	//Copied Code to spawn actor
-	UObject* SpawnActor = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("/Game/_Main/Spells/Icicle")));
-
-	UBlueprint* GeneratedBP = Cast<UBlueprint>(SpawnActor);
-	if (!SpawnActor)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("CANT FIND OBJECT TO SPAWN")));
-		return;
-	}
-
-	UClass* SpawnClass = SpawnActor->StaticClass();
-	if (SpawnClass == NULL)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("CLASS == NULL")));
-		return;
-	}
-
-	UWorld* World = GetWorld();
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this->GetOwner();
-	SpawnParams.Instigator = this->GetInstigator();
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	World->SpawnActor<AActor>(GeneratedBP->GeneratedClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+	SpawnSpellActor();
 
 	Destroy();
+}
+
+bool AAOESpell::Server_SpawnSpellActor_Validate()
+{
+	return true;
+}
+
+void AAOESpell::Server_SpawnSpellActor_Implementation()
+{
+	SpawnSpellActor();
+}
+
+void AAOESpell::SpawnSpellActor()
+{
+	if (/*HasAuthority()*/ true)
+	{
+		//Copied Code to spawn actor
+		UObject* SpawnActor = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("/Game/_Main/Spells/Icicle")));
+
+		UBlueprint* GeneratedBP = Cast<UBlueprint>(SpawnActor);
+		if (!SpawnActor)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("CANT FIND OBJECT TO SPAWN")));
+			return;
+		}
+
+		UClass* SpawnClass = SpawnActor->StaticClass();
+		if (SpawnClass == NULL)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("CLASS == NULL")));
+			return;
+		}
+
+		UWorld* World = GetWorld();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this->GetOwner();
+		SpawnParams.Instigator = this->GetInstigator();
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		World->SpawnActor<AActor>(GeneratedBP->GeneratedClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+	}
+	else
+	{
+
+	}
 }
 
 void AAOESpell::Tick(float deltaTime)

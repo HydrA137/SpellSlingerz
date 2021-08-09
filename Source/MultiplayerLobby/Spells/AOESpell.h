@@ -31,10 +31,17 @@ public:
 
 	virtual void SpellEnd() override;
 
+	
+
 	UPROPERTY(EditAnywhere, Category = "Components");
 	class UStaticMeshComponent* AOE_TargettingMesh;
 
 protected:
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_SpawnSpellActor();
+
+	void SpawnSpellActor();
 
 public:
 	// Called every frame
