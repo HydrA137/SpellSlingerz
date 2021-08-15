@@ -312,46 +312,47 @@ void ATPCharacter::Server_StopFire_Implementation()
 
 void ATPCharacter::StopFire()
 {
+	GetWorldTimerManager().ClearTimer(firingTimer);
+
+	if (primarySpell)
+	{
+		if (primarySpell->GetProperties().isChargable &&
+			primarySpell->IsCharging())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Primary Charge Ending");
+			primarySpell->Fired();
+		}
+		else if (primarySpell->GetProperties().isHeld)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Primary Held Ending");
+			primarySpell->GetProperties().Reset();
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			AnimInstance->Montage_Resume(castingAnimMontage);
+		}
+	}
+
 	if (HasAuthority()) {
-	
-		GetWorldTimerManager().ClearTimer(firingTimer);
 		if (activeSpell)
 		{
 			if (activeSpell->GetProperties().isChargable &&
 				activeSpell->IsCharging())
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken");
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Active Charge Ending");
 				activeSpell->EndCharge();
 				activeSpell = 0;
 			}
 			else if (activeSpell->GetProperties().isHeld)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken2");
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Active Held Ending");
 				activeSpell->SpellEnd();
 				activeSpell = 0;
 			}
 		}
 	}
-	else 
+	else
 	{
 		Server_StopFire();
-		if (primarySpell)
-		{
-			if (primarySpell->GetProperties().isChargable &&
-				primarySpell->IsCharging())
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken");
-				primarySpell->Fired();
-			}
-			else if (primarySpell->GetProperties().isHeld)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Broken2");
-				primarySpell->GetProperties().Reset();
-				UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-				AnimInstance->Montage_Resume(castingAnimMontage);
-			}
-		}
-	}
+	}	
 }
 
 void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn, FVector target, const FHitResult& hitResult)

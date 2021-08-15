@@ -7,6 +7,9 @@
 
 AAOESpell::AAOESpell()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+
 	AOE_TargettingMesh = CreateDefaultSubobject<UStaticMeshComponent>("AOE_TargettingMesh");
 }
 

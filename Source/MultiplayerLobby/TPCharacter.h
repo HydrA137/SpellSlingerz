@@ -41,6 +41,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	class ASpell* GetActiveSpell() { return activeSpell; }
 
+	class ASpell* GetPrimarySpell() { return primarySpell; }
+
 	UFUNCTION(BlueprintCallable)
 	virtual void OnKill(int score);		
 	
