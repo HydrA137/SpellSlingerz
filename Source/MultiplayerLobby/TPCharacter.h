@@ -175,6 +175,8 @@ protected:
 
 	bool isCasting;
 
+	int CurrentScore;
+
 public:
 	ATPCharacter();
 

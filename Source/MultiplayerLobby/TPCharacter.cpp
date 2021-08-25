@@ -73,8 +73,10 @@ ATPCharacter::ATPCharacter()
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
 	SpellClass = ASpell::StaticClass();
-	MaxHealth = 999999999.0f;
+	MaxHealth = 1.0f;
 	CurrentHealth = MaxHealth;
+
+	CurrentScore = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -198,6 +200,12 @@ void ATPCharacter::OnKill(int score)
 {
 	if (IsLocallyControlled())
 	{
+		if (GetPlayerState()->Score + score >= 0.0f) 
+		{
+			GetPlayerState()->Score += score;
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Current Score: %f"), GetPlayerState()->Score));
+		}
+
 		spellBook->OnKill(score);
 		primarySpell = 0;
 	}
