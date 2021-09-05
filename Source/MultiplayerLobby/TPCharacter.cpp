@@ -181,14 +181,14 @@ void ATPCharacter::FinaliseDeath_Implementation()
 		if (lastDamageDealer != this)
 		{
 			lastDamageDealer->SendKill(1);
-			//lastDamageDealer->GetPlayerState<ASSPlayerState>()->AddKill();			
-			//this->GetPlayerState<ASSPlayerState>()->AddDeath();
+			lastDamageDealer->GetPlayerState<ASSPlayerState>()->AddKill();			
+			this->GetPlayerState<ASSPlayerState>()->AddDeath();
 		}
 		else
 		{
 			this->SendKill(-1);
-			//this->GetPlayerState<ASSPlayerState>()->RemoveKill();			
-			//this->GetPlayerState<ASSPlayerState>()->AddDeath();
+			this->GetPlayerState<ASSPlayerState>()->RemoveKill();			
+			this->GetPlayerState<ASSPlayerState>()->AddDeath();
 		}
 
 		GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ATPCharacter::Respawn, spawnDelay, false);
@@ -200,11 +200,11 @@ void ATPCharacter::OnKill(int score)
 {
 	if (IsLocallyControlled())
 	{
-		if (GetPlayerState()->Score + score >= 0.0f) 
+		/*if (this->GetPlayerState()->Score + score >= 0.0f)
 		{
-			GetPlayerState()->Score += score;
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Current Score: %f"), GetPlayerState()->Score));
-		}
+			this->GetPlayerState()->Score += score;
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Current Score: %f"), this->GetPlayerState()->Score));
+		}*/
 
 		spellBook->OnKill(score);
 		primarySpell = 0;

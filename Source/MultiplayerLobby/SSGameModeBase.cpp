@@ -5,12 +5,14 @@
 #include "UObject/ConstructorHelpers.h"
 #include "GameFramework/GameMode.h"
 #include "Engine/World.h"
+#include "Spells/SpellBook.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
 #include "GunGameState.h"
 #include "SSPlayerState.h"
 #include "Net/UnrealNetwork.h"
+
 
 ASSGameModeBase::ASSGameModeBase()
 {
@@ -71,6 +73,14 @@ void ASSGameModeBase::CheckEndGame_Implementation()
 
 	GetGameState<AGunGameState>()->SetTopScore(topScore);
 	GetGameState<AGunGameState>()->SetTopScorer(topScorer);
+
+	if (topScore >= topScorer->GetSpellBook()->GetSpellCount())
+	{
+		//We have a winner
+		topScorer->GetPlayerState<ASSPlayerState>()->SetWinner(true);
+		GameFinished();
+	}
+	
 
 	// show score screen, remove damage from players.
 

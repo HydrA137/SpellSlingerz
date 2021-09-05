@@ -43,8 +43,13 @@ public:
 
 	class ASpell* GetPrimarySpell() { return primarySpell; }
 
+	class USpellBook* GetSpellBook() { return spellBook; }
+
 	UFUNCTION(BlueprintCallable)
-	virtual void OnKill(int score);		
+	virtual void OnKill(int score);	
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool IsWinner() { return Winner; }
 	
 protected:
 
@@ -187,5 +192,8 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseLookUpRate;
+
+	UPROPERTY(VisibleAnywhere)
+	bool Winner = false;
 };
 
