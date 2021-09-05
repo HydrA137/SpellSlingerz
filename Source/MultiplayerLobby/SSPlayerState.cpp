@@ -12,6 +12,7 @@ void ASSPlayerState::GetLifetimeReplicatedProps(TArray <FLifetimeProperty>& OutL
 	//Replicate current health.
 	DOREPLIFETIME(ASSPlayerState, kills);
 	DOREPLIFETIME(ASSPlayerState, deaths);
+	DOREPLIFETIME(ASSPlayerState, winner);
 }
 
 void ASSPlayerState::OnRep_Kills()
@@ -19,6 +20,11 @@ void ASSPlayerState::OnRep_Kills()
 }
 
 void ASSPlayerState::OnRep_Deaths()
+{
+
+}
+
+void ASSPlayerState::OnRep_Winner()
 {
 
 }

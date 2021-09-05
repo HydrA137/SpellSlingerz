@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int GetScoreGoal() { return ScoreGoal; }
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void GameFinished();
+
 protected:
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 

@@ -32,6 +32,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int GetDeaths() { return deaths; }
+
+	UFUNCTION(BlueprintCallable)
+	bool GetWinner() { return winner; }
+	void SetWinner(bool Winner) { winner = Winner; }
 	
 protected:
 	UFUNCTION()
@@ -40,6 +44,9 @@ protected:
 	UFUNCTION()
 	void OnRep_Deaths();
 
+	UFUNCTION()
+	void OnRep_Winner();
+
 	// variables
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_Kills)
@@ -47,4 +54,8 @@ protected:
 
 	UPROPERTY(ReplicatedUsing = OnRep_Deaths)
 	int deaths;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Winner)
+	bool winner;
+	
 };
