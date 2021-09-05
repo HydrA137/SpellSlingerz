@@ -38,7 +38,8 @@ void ASSPlayerState::RemoveKill()
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		kills += 1;
+		kills -= 1;
+		kills = FMath::Max(kills, 0);
 
 		ASSGameModeBase* gameMode = (ASSGameModeBase*)GetWorld()->GetAuthGameMode();
 		//gameMode->CheckEndGame();

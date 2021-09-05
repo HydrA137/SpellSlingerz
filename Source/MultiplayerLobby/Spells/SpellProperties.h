@@ -25,7 +25,6 @@ struct FSpellProperties
 
 	void Fired()
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Resetting Cooldown");
 		cooldownTimer = 1.0f;
 		spreadAngle = FMath::Min(spreadAngle + spreadAngleChange, maxSpreadAngle);
 	}

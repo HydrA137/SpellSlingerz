@@ -179,14 +179,14 @@ void ATPCharacter::FinaliseDeath_Implementation()
 		if (lastDamageDealer != this)
 		{
 			lastDamageDealer->SendKill(1);
-			//lastDamageDealer->GetPlayerState<ASSPlayerState>()->AddKill();			
-			//this->GetPlayerState<ASSPlayerState>()->AddDeath();
+			lastDamageDealer->GetPlayerState<ASSPlayerState>()->AddKill();			
+			this->GetPlayerState<ASSPlayerState>()->AddDeath();
 		}
 		else
 		{
 			this->SendKill(-1);
-			//this->GetPlayerState<ASSPlayerState>()->RemoveKill();			
-			//this->GetPlayerState<ASSPlayerState>()->AddDeath();
+			this->GetPlayerState<ASSPlayerState>()->RemoveKill();			
+			this->GetPlayerState<ASSPlayerState>()->AddDeath();
 		}
 
 		GetWorldTimerManager().SetTimer(respawnTimerHandle, this, &ATPCharacter::Respawn, spawnDelay, false);

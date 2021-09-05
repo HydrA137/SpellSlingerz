@@ -14,6 +14,7 @@
 
 ALazorSpell::ALazorSpell()
 {
+	bReplicates = true;
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultExplosionEffect(TEXT("/Game/_main/Spells/Particles/Lazor_Beam_Hit_Effect.Lazor_Beam_Hit_Effect"));
 	if (DefaultExplosionEffect.Succeeded())
 	{
@@ -31,25 +32,25 @@ void ALazorSpell::PrepareSpell(FVector targetPoint, const FSpellProperties& spel
 	// targetPoint unused
 	Super::PrepareSpell(targetPoint, spellProps);
 
+	PrepareLazor();
+		
+}
+
+void ALazorSpell::PrepareLazor_Implementation()
+{
 	if (!staticMesh)
 	{
 		TArray<UStaticMeshComponent*> Components;
 		this->GetComponents<UStaticMeshComponent>(Components);
-		/*for (int32 i = 0; i < Components.Num(); i++)
-		{
-			UStaticMeshComponent* StaticMeshComponent = Components[i];
-			UStaticMesh* StaticMesh = StaticMeshComponent->StaticMesh;
-		}*/
 		if (Components.Num() > 0)
 		{
 			staticMesh = Components[0];
 		}
-	}	
+	}
 }
 
 void ALazorSpell::Fire()
 {
-
 
 }
 
@@ -81,24 +82,30 @@ void ALazorSpell::SpellEnd()
 
 void ALazorSpell::Tick(float DeltaTime)
 {
-	CheckTargetCooldowns(DeltaTime);
-	AimLazor(DeltaTime);
+	if (dynamic_cast<APawn*>(GetOwner())->IsLocallyControlled())
+	{
+		CheckTargetCooldowns(DeltaTime);
+		AimLazor(DeltaTime);
+	}
 }
 
 void ALazorSpell::AimLazor(float deltaTime)
 {
 	FHitResult hitResult = dynamic_cast<ATPCharacter*>(GetOwner())->GetLookPoint(properties.range, 25.0f);
 	FVector castPoint = dynamic_cast<ATPCharacter*>(GetOwner())->GetSpellCastPoint();
+	FVector hitPoint = hitResult.TraceEnd;
+	bool explosion = false;
 
 	float scale = 1.0f;
 	if (hitResult.Distance > 0)
 	{
-		scale = hitResult.Distance / 100.0f;
-		// Lazor_Beam_Hit_Effect
+		hitPoint = hitResult.ImpactPoint;
+		scale = (castPoint - hitPoint).Size() / 100.0f;
 		
 		if (explosionEffect)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explosionEffect, hitResult.ImpactPoint, (castPoint - hitResult.TraceEnd).Rotation(), true, EPSCPoolMethod::AutoRelease);
+			explosion = true;
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explosionEffect, hitResult.ImpactPoint, (castPoint - hitPoint).Rotation(), true, EPSCPoolMethod::AutoRelease);
 		}
 
 		ATPCharacter* targetPlayer = dynamic_cast<ATPCharacter*>(hitResult.Actor.Get());
@@ -123,9 +130,38 @@ void ALazorSpell::AimLazor(float deltaTime)
 	staticMesh->SetRelativeScale3D(FVector(0.25f, 0.25f, scale));
 	staticMesh->SetRelativeLocation(FVector(scale * 50.0f, 0.0f, 0.0f));
 
-	FVector direction = hitResult.TraceEnd - castPoint;
+	FVector direction = hitPoint - castPoint;
 	SetActorRotation(direction.Rotation());
 	SetActorLocation(castPoint);
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		UpdateLazor(castPoint, hitPoint, scale, explosion);
+	}
+	else
+	{
+		UpdateLazorServer(castPoint, hitPoint, scale, explosion);
+	}
+}
+
+void ALazorSpell::UpdateLazorServer_Implementation(FVector position, FVector hitPoint, float scale, bool explosion)
+{
+	UpdateLazor(position, hitPoint, scale, explosion);
+}
+
+void ALazorSpell::UpdateLazor_Implementation(FVector position, FVector hitPoint, float scale, bool explosion)
+{
+	if (!dynamic_cast<APawn*>(GetOwner())->IsLocallyControlled())
+	{
+		SetActorLocation(position);
+		SetActorRotation((hitPoint - position).Rotation());
+		staticMesh->SetRelativeScale3D(FVector(0.25f, 0.25f, scale));
+		staticMesh->SetRelativeLocation(FVector(scale * 50.0f, 0.0f, 0.0f));
+		if (explosion && explosionEffect)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explosionEffect, hitPoint, (position - hitPoint).Rotation(), true, EPSCPoolMethod::AutoRelease);
+		}
+	}
 }
 
 void ALazorSpell::CheckTargetCooldowns(float detlaTime)

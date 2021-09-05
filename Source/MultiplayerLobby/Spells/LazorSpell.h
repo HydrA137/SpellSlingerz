@@ -42,6 +42,15 @@ protected:
 
 	virtual void CheckTargetCooldowns(float deltaTime);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void PrepareLazor();
+
+	UFUNCTION(Server, Reliable)
+	void UpdateLazorServer(FVector position, FVector hitPoint, float scale, bool explosion);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void UpdateLazor(FVector position, FVector hitPoint, float scale, bool explosion);
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -54,4 +63,5 @@ protected:
 	class UParticleSystem* explosionEffect;
 
 	TMap<class ATPCharacter*, float> targets;
+
 };
