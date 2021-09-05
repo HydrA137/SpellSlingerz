@@ -74,9 +74,16 @@ ATPCharacter::ATPCharacter()
 
 	SpellClass = ASpell::StaticClass();
 	MaxHealth = 1.0f;
-	CurrentHealth = MaxHealth;
+	
 
 	CurrentScore = 0;
+}
+
+// Called when the game starts or when spawned
+void ATPCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	CurrentHealth = MaxHealth;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -469,9 +476,9 @@ void ATPCharacter::MoveRight(float Value)
 	}
 }
 
-FHitResult ATPCharacter::GetLookPoint(float distance, float radius)
+FHitResult ATPCharacter::GetLookPoint(float distance, float radius, TArray<AActor*> toIgnore = { })
 {
-	TArray<AActor*> toIgnore = { this };
+	toIgnore.Add(this);
 	FHitResult result;
 	FVector start = GetFollowCamera()->GetComponentLocation();
 	FVector end = start + (GetFollowCamera()->GetForwardVector() * distance);

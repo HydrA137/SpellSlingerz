@@ -31,17 +31,14 @@ public:
 
 	virtual void SpellEnd() override;
 
-	
-
-	UPROPERTY(EditAnywhere, Category = "Components");
-	class UStaticMeshComponent* AOE_TargettingMesh;
-
 protected:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SpawnSpellActor();
 
-	void SpawnSpellActor();
+	virtual void SpawnSpellActor();
+
+	virtual void MoveMarker(float deltaTime);
 
 public:
 	// Called every frame
@@ -49,7 +46,12 @@ public:
 
 
 	// Variables
+public:
+	UPROPERTY(EditAnywhere, Category = "Components");
+	class UStaticMeshComponent* AOE_TargettingMesh;
+
 private:
+	FVector spellLocation;
 
 protected:
 	float chargeTime = 1.0f;

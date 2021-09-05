@@ -106,7 +106,6 @@ struct FSpellProperties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	float maxSpreadAngle;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	float spreadAngleChange;
 
@@ -121,4 +120,10 @@ struct FSpellProperties
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	FExplosionProperties explosionProperties;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	float minAOERadius;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	float maxAOERadius;
 };

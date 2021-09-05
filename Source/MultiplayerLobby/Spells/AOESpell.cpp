@@ -4,6 +4,7 @@
 #include "AOESpell.h"
 #include "../TPCharacter.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AAOESpell::AAOESpell()
 {
@@ -111,7 +112,27 @@ void AAOESpell::SpawnSpellActor()
 
 void AAOESpell::Tick(float deltaTime)
 {
+	MoveMarker(deltaTime);
+}
+
+void AAOESpell::MoveMarker(float deltaTime)
+{
 	FHitResult hit = dynamic_cast<ATPCharacter*>(GetOwner())->GetLookPoint(properties.range, 1.0f);
-	SetActorLocation(hit.Location);
+	if (hit.Distance > 0)
+	{
+		SetActorLocation(hit.Location);
+	}
+	else
+	{
+		TArray<AActor*> toIgnore = { this, GetOwner() };
+		FHitResult result;
+		FVector start(hit.TraceEnd);
+		FVector end = start + (FVector(0.0f,0.0f,-1.0f) * 3000.0f);
+		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end, UEngineTypes::ConvertToTraceType(ECC_Pawn), false, toIgnore, EDrawDebugTrace::None, result, true))
+		{
+			SetActorLocation(result.Location);
+		}
+	}
+
 	SetActorRotation(FRotationMatrix::MakeFromZ(hit.Normal).Rotator());
 }

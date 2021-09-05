@@ -49,8 +49,11 @@ protected:
 
 	// Variables
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Properties")
 	TSubclassOf<class AProjectileSpell> projectile;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell Properties")
+	bool followPlayer;
 
 	bool stopFiring;
 };

@@ -11,6 +11,7 @@ UGunGameSpellBook::UGunGameSpellBook()
 void UGunGameSpellBook::OnKill(int score)
 {
 	currentSpell += score;
+	currentSpell = FMath::Max(currentSpell, 0);
 }
 
 ASpell* UGunGameSpellBook::GetPrimarySpell()

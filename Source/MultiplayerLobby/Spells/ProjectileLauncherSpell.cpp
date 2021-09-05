@@ -13,6 +13,7 @@ AProjectileLauncherSpell::AProjectileLauncherSpell()
 	bReplicates = true;
 	properties.cooldownTimer = 0.0f;
 	stopFiring = false;
+	followPlayer = true;
 }
 
 void AProjectileLauncherSpell::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -22,10 +23,20 @@ void AProjectileLauncherSpell::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 
 void AProjectileLauncherSpell::PrepareSpell(FVector _target, const FSpellProperties& spellProps)
 {
+	Super::PrepareSpell(_target, spellProps);
 }
 
 void AProjectileLauncherSpell::Fire()
 {
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		if (!properties.isHeld)
+		{
+			FTimerHandle lifeTimerHandle;
+			float lifeTime = FMath::RandRange(properties.minLifeTime, properties.maxLifeTime);
+			GetWorldTimerManager().SetTimer(lifeTimerHandle, this, &AProjectileLauncherSpell::SpellEnd, lifeTime, false);
+		}
+	}
 }
 
 void AProjectileLauncherSpell::FireAt(FVector _target)
@@ -58,7 +69,10 @@ void AProjectileLauncherSpell::Tick(float deltaTime)
 {
 	if (!stopFiring)
 	{
-		SetActorLocation(dynamic_cast<ATPCharacter*>(GetOwner())->GetSpellCastPoint());
+		if (followPlayer)
+		{
+			SetActorLocation(dynamic_cast<ATPCharacter*>(GetOwner())->GetSpellCastPoint());
+		}
 		FireProjectiles(deltaTime);
 		UpdateProjectileCooldowns(deltaTime);
 	}
@@ -76,9 +90,14 @@ void AProjectileLauncherSpell::FireProjectiles(float deltaTime)
 	{
 		FVector spawnLocation = GetActorLocation();
 
-		FHitResult hitResult = dynamic_cast<ATPCharacter*>(GetOwner())->GetLookPoint(1000.0f, 5.0f);
+		FHitResult hitResult;
+		if (followPlayer)
+		{
+			hitResult = dynamic_cast<ATPCharacter*>(GetOwner())->GetLookPoint(1000.0f, 5.0f);
+			target = hitResult.TraceEnd;
+		}
 
-		HandleFire(spell, spawnLocation, hitResult.TraceEnd, hitResult);
+		HandleFire(spell, spawnLocation, target, hitResult);
 	}
 }
 
@@ -102,10 +121,12 @@ void AProjectileLauncherSpell::HandleFire_Implementation(ASpell* spellTarget, FV
 	spawnParameters.Owner = GetOwner();
 
 	int count = FMath::Max(1, FMath::RandRange(properties.minProjectileCount, properties.maxProjectileCount));
+	float radius = FMath::RandRange(properties.minAOERadius, properties.maxAOERadius);
 	// Get Spell based on type
 	for (int i = 0; i < count; ++i)
 	{
-		ASpell* activeSpell = GetWorld()->SpawnActor<ASpell>(spellTarget->GetClass(), spawn, spawnRotation, spawnParameters);
+		FVector uniqueSpawn = spawn + GetActorRightVector() * FMath::RandRange(-radius, radius) + GetActorUpVector() * FMath::RandRange(-radius, radius);
+		ASpell* activeSpell = GetWorld()->SpawnActor<ASpell>(spellTarget->GetClass(), uniqueSpawn, spawnRotation, spawnParameters);
 		activeSpell->PrepareSpell(_target, spellTarget->GetProperties());
 
 		if (activeSpell->GetProperties().isHoming && hitResult.Actor.IsValid())

@@ -30,7 +30,7 @@ public:
 	void ActivateSpell();
 
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	FHitResult GetLookPoint(float distance, float radius);
+	FHitResult GetLookPoint(float distance, float radius, TArray<AActor*> toIgnore);
 
 	UFUNCTION(BlueprintCallable)
 	FVector GetSpellCastPoint();
@@ -52,6 +52,8 @@ public:
 	virtual bool IsWinner() { return Winner; }
 	
 protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
 	void OnHealthUpdate();
 
