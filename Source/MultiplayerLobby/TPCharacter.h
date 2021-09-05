@@ -29,6 +29,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void ActivateSpell();
 
+	
+	FHitResult GetLookPoint(float distance, float radius);
+
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	FHitResult GetLookPoint(float distance, float radius, TArray<AActor*> toIgnore);
 

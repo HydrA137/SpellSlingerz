@@ -476,9 +476,13 @@ void ATPCharacter::MoveRight(float Value)
 	}
 }
 
-FHitResult ATPCharacter::GetLookPoint(float distance, float radius, TArray<AActor*> toIgnore = { })
+FHitResult ATPCharacter::GetLookPoint(float distance, float radius)
 {
-	toIgnore.Add(this);
+	return GetLookPoint(distance, radius, { this });
+}
+
+FHitResult ATPCharacter::GetLookPoint(float distance, float radius, TArray<AActor*> toIgnore)
+{
 	FHitResult result;
 	FVector start = GetFollowCamera()->GetComponentLocation();
 	FVector end = start + (GetFollowCamera()->GetForwardVector() * distance);
