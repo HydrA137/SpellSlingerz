@@ -33,7 +33,7 @@ public:
 	virtual void Charging(float detalTime) override;
 
 	virtual void EndCharge() override;
-
+	
 	virtual void SpellEnd() override;
 
 protected:
@@ -43,13 +43,17 @@ protected:
 	virtual void CheckTargetCooldowns(float deltaTime);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void PrepareLightning();
-
-	UFUNCTION(Server, Reliable)
-	void UpdateLightningServer(FVector position, FVector hitPoint, float scale, bool explosion);
+	void KillParticles();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void UpdateLightning(FVector position, FVector hitPoint, float scale, bool explosion);
+	void ServerFire();
+
+	UFUNCTION(Server, Reliable)
+	void UpdateLightningServer(FVector spawnPoint, FVector hitPoint, FVector scale);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void UpdateLightning(FVector spawnPoint, FVector hitPoint, FVector scale);
+
 
 
 public:

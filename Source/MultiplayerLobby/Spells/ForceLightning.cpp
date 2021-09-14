@@ -18,7 +18,6 @@ AForceLightning::AForceLightning()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
-	//AOE_TargettingMesh = CreateDefaultSubobject<UStaticMeshComponent>("AOE_TargettingMesh");
 }
 void AForceLightning::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -29,18 +28,16 @@ void AForceLightning::PrepareSpell(FVector targetPoint, const FSpellProperties& 
 {
 	// targetPoint unused
 	Super::PrepareSpell(targetPoint, spellProps);
-
-	PrepareLightning();
-
 }
 
-void AForceLightning::PrepareLightning_Implementation()
+void AForceLightning::ServerFire_Implementation()
 {
+	LightningParticleComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), LightningParticle, dynamic_cast<ATPCharacter*>(GetOwner())->GetSpellCastPoint(), FRotator::ZeroRotator, true, EPSCPoolMethod::AutoRelease);
 }
 
 void AForceLightning::Fire()
 {
-	LightningParticleComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), LightningParticle, dynamic_cast<ATPCharacter*>(GetOwner())->GetSpellCastPoint(), FRotator::ZeroRotator, false);
+	ServerFire();
 }
 
 void AForceLightning::FireAt(FVector targetPoint)
@@ -66,6 +63,11 @@ void AForceLightning::EndCharge()
 
 void AForceLightning::SpellEnd()
 {
+	KillParticles();
+}
+
+void AForceLightning::KillParticles_Implementation()
+{
 	LightningParticleComponent->DeactivateSystem();
 	Destroy();
 }
@@ -85,10 +87,6 @@ void AForceLightning::AimLightning(float deltaTime)
 	FVector castPoint = dynamic_cast<ATPCharacter*>(GetOwner())->GetSpellCastPoint();
 	FVector hitPoint = castPoint;
 	FVector lightningThickness = { 0.5f, 0.5f, 0.5f };
-	bool explosion = false;
-
-	LightningParticleComponent->SetBeamSourcePoint(0, castPoint, 0);
-	
 
 	//Get all players within the area
 	TArray<AActor*> hitPlayers;
@@ -118,9 +116,7 @@ void AForceLightning::AimLightning(float deltaTime)
 			if (result.Actor->ActorHasTag("Player"))
 			{
 				lightningThickness = FVector{ 1.6f, 1.6f, 1.6f };
-				hitPoint = hitPlayers[i]->GetActorLocation();
-				
-				LightningParticleComponent->SetBeamTargetPoint(0, hitPoint, 0);
+				hitPoint = hitPlayers[i]->GetActorLocation();		
 
 				ATPCharacter* targetPlayer = dynamic_cast<ATPCharacter*>(hitPlayers[i]);
 				if (!targets.Contains(targetPlayer))
@@ -137,40 +133,28 @@ void AForceLightning::AimLightning(float deltaTime)
 			}
 		}
 	}
-
 	
-	LightningParticleComponent->SetVectorParameter("InitSize", lightningThickness);
+	if (HasAuthority())
+	{
+		UpdateLightning(castPoint, hitPoint, lightningThickness);		
+	}
+	else 
+	{
+		UpdateLightningServer(castPoint, hitPoint, lightningThickness);
+	}	
+}
+
+void AForceLightning::UpdateLightning_Implementation(FVector spawnPoint, FVector hitPoint, FVector scale)
+{		
+	LightningParticleComponent->SetBeamSourcePoint(0, spawnPoint, 0);
+	LightningParticleComponent->SetVectorParameter("InitSize", scale);
 	LightningParticleComponent->Activate();
 	LightningParticleComponent->SetBeamTargetPoint(0, hitPoint, 0);
-
-
-	float scale = 1.0f;
-
-	FVector direction = hitPoint - castPoint;
-	SetActorRotation(direction.Rotation());
-	SetActorLocation(castPoint);
-
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		UpdateLightning(castPoint, hitPoint, scale, explosion);
-	}
-	else
-	{
-		UpdateLightningServer(castPoint, hitPoint, scale, explosion);
-	}
 }
 
-void AForceLightning::UpdateLightningServer_Implementation(FVector position, FVector hitPoint, float scale, bool explosion)
+void AForceLightning::UpdateLightningServer_Implementation(FVector spawnPoint, FVector hitPoint, FVector scale)
 {
-	UpdateLightning(position, hitPoint, scale, explosion);
-}
-
-void AForceLightning::UpdateLightning_Implementation(FVector position, FVector hitPoint, float scale, bool explosion)
-{
-	if (!dynamic_cast<APawn*>(GetOwner())->IsLocallyControlled())
-	{
-		
-	}
+	UpdateLightning(spawnPoint, hitPoint, scale);
 }
 
 void AForceLightning::CheckTargetCooldowns(float detlaTime)

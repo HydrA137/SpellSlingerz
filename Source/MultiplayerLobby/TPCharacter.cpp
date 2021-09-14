@@ -238,13 +238,16 @@ void ATPCharacter::SetCurrentHealth(float healthValue)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
-		OnHealthUpdate();
+		if (GetWorld()->GetAuthGameMode()->IsA(ASSGameModeBase::StaticClass()))
+		{
+			CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
+			OnHealthUpdate();
+		}
 	}
 }
 
 float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
+{	
 	float damageApplied = CurrentHealth - DamageTaken;
 	lastDamageDealer = Cast<ATPCharacter>(Cast<AActor>(DamageCauser)->GetOwner());
 
@@ -256,7 +259,7 @@ float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& Dam
 	}*/
 
 	SetCurrentHealth(damageApplied);
-	return damageApplied;
+	return damageApplied;		
 }
 
 void ATPCharacter::StartFire()
@@ -315,8 +318,7 @@ void ATPCharacter::ActivateSpell()
 			target = result.ImpactPoint;
 		}
 		HandleFire(primarySpell, spawnLocation, target, result);
-		primarySpell->Fired();
-		
+		primarySpell->Fired();		
 	}
 }
 
@@ -504,9 +506,24 @@ TArray<AActor*> ATPCharacter::GetLookSphere(float distance, float radius)
 
 	if (UKismetSystemLibrary::SphereOverlapActors(GetWorld(), end, radius, { UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn) }, false, toIgnore, result))
 	{
+		UKismetSystemLibrary::DrawDebugSphere(
+			GetWorld(),
+			end,
+			radius,
+			32,
+			FColor(0, 255, 0)
+		); 
 
 		return result;
 	}
+
+	UKismetSystemLibrary::DrawDebugSphere(
+		GetWorld(),
+		end,
+		radius,
+		32,
+		FColor(255, 0, 0)
+	);
 
 	return result;
 }
