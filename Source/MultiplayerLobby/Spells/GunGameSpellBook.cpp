@@ -28,3 +28,11 @@ void UGunGameSpellBook::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
+
+void UGunGameSpellBook::SetSpell(int SpellNumber)
+{
+	if (SpellNumber < spells.Num() && SpellNumber >= 0)
+	{
+		currentSpell = SpellNumber;
+	}	
+}

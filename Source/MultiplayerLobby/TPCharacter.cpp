@@ -494,7 +494,30 @@ FHitResult ATPCharacter::GetLookPoint(float distance, float radius, TArray<AActo
 	return result; 
 }
 
+TArray<AActor*> ATPCharacter::GetLookSphere(float distance, float radius)
+{
+	TArray<AActor*> toIgnore = { this };
+	TArray<AActor*> result;
+	FVector start = GetMesh()->GetBoneLocation("Character1_RightHand");
+	FVector end = start + (GetFollowCamera()->GetForwardVector() * distance);
+	
+
+	if (UKismetSystemLibrary::SphereOverlapActors(GetWorld(), end, radius, { UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn) }, false, toIgnore, result))
+	{
+
+		return result;
+	}
+
+	return result;
+}
+
 FVector ATPCharacter::GetSpellCastPoint()
 {
 	return GetMesh()->GetBoneLocation("Character1_RightHand");
+}
+
+void ATPCharacter::SetSpell(int SpellNumber)
+{
+	primarySpell = 0;
+	spellBook->SetSpell(SpellNumber);
 }

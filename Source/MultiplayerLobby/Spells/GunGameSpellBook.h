@@ -23,6 +23,9 @@ public:
 
 	virtual ASpell* GetSecondarySpell() override;
 
+
+	virtual void SetSpell(int SpellNumber);
+
 protected:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

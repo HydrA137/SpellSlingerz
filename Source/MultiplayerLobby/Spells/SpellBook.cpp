@@ -80,3 +80,8 @@ void USpellBook::UpdateSpreads(float deltaTime)
 		spell->GetProperties().spreadAngle = FMath::Max(spell->GetProperties().minSpreadAngle, spreadAngle);
 	}
 }
+
+void USpellBook::SetSpell(int SpellNumber)
+{
+
+}
