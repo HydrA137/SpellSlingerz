@@ -36,6 +36,9 @@ public:
 
 	int GetSpellCount() { return spells.Num(); }
 
+	UFUNCTION(BlueprintCallable)
+	virtual void SetSpell(int SpellNumber);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -35,6 +35,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	FHitResult GetLookPoint(float distance, float radius, TArray<AActor*> toIgnore);
 
+	TArray<AActor*> GetLookSphere(float distance, float radius);
+
 	UFUNCTION(BlueprintCallable)
 	FVector GetSpellCastPoint();
 
@@ -95,6 +97,9 @@ protected:
 	/** Server function for spawning projectiles.*/
 	UFUNCTION(Server, Reliable)
 	void HandleFire(ASpell* spellTarget, FVector spawn, FVector _target, const FHitResult& hitResult);
+
+	UFUNCTION(BlueprintCallable)
+	void SetSpell(int SpellNumber);
 	
 	/** A timer handle used for providing the fire rate delay in-between spawns.*/
 	FTimerHandle FiringTimer;

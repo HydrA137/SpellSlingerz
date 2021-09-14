@@ -239,13 +239,16 @@ void ATPCharacter::SetCurrentHealth(float healthValue)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
-		OnHealthUpdate();
+		if (GetWorld()->GetAuthGameMode()->IsA(ASSGameModeBase::StaticClass()))
+		{
+			CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
+			OnHealthUpdate();
+		}
 	}
 }
 
 float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
+{	
 	float damageApplied = CurrentHealth - DamageTaken;
 	lastDamageDealer = Cast<ATPCharacter>(Cast<AActor>(DamageCauser)->GetOwner());
 
@@ -257,7 +260,7 @@ float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& Dam
 	}*/
 
 	SetCurrentHealth(damageApplied);
-	return damageApplied;
+	return damageApplied;		
 }
 
 void ATPCharacter::StartFire()
@@ -291,7 +294,7 @@ void ATPCharacter::DoCastingAnimation()
 	if (AnimInstance && castingAnimMontage)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Starting Animation");
-		const float MontageLength = AnimInstance->Montage_Play(castingAnimMontage, FMath::Min(primarySpell->GetProperties().fireRate * 1.2f, 2.0f), EMontagePlayReturnType::Duration, 0.0f);
+		const float MontageLength = AnimInstance->Montage_Play(castingAnimMontage, FMath::Min(primarySpell->GetProperties().fireRate * 1.4f, 2.0f), EMontagePlayReturnType::Duration, 0.0f);
 		bPlayedSuccessfully = (MontageLength > 0.f);
 	}
 }
@@ -316,8 +319,7 @@ void ATPCharacter::ActivateSpell()
 			target = result.ImpactPoint;
 		}
 		HandleFire(primarySpell, spawnLocation, target, result);
-		primarySpell->Fired();
-		
+		primarySpell->Fired();		
 	}
 }
 
@@ -494,7 +496,45 @@ FHitResult ATPCharacter::GetLookPoint(float distance, float radius, TArray<AActo
 	return result; 
 }
 
+TArray<AActor*> ATPCharacter::GetLookSphere(float distance, float radius)
+{
+	TArray<AActor*> toIgnore = { this };
+	TArray<AActor*> result;
+	FVector start = GetMesh()->GetBoneLocation("Character1_RightHand");
+	FVector end = start + (GetFollowCamera()->GetForwardVector() * distance);
+	
+
+	if (UKismetSystemLibrary::SphereOverlapActors(GetWorld(), end, radius, { UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn) }, false, toIgnore, result))
+	{
+		UKismetSystemLibrary::DrawDebugSphere(
+			GetWorld(),
+			end,
+			radius,
+			32,
+			FColor(0, 255, 0)
+		); 
+
+		return result;
+	}
+
+	UKismetSystemLibrary::DrawDebugSphere(
+		GetWorld(),
+		end,
+		radius,
+		32,
+		FColor(255, 0, 0)
+	);
+
+	return result;
+}
+
 FVector ATPCharacter::GetSpellCastPoint()
 {
 	return GetMesh()->GetBoneLocation("Character1_RightHand");
+}
+
+void ATPCharacter::SetSpell(int SpellNumber)
+{
+	primarySpell = 0;
+	spellBook->SetSpell(SpellNumber);
 }
