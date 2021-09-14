@@ -215,6 +215,7 @@ void ATPCharacter::OnKill(int score)
 
 		spellBook->OnKill(score);
 		primarySpell = 0;
+		StopFire();
 	}
 }
 
@@ -297,7 +298,7 @@ void ATPCharacter::DoCastingAnimation()
 
 void ATPCharacter::ActivateSpell()
 {
-	if (this)
+	if (this && primarySpell)
 	{
 		isCasting = false;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Activate Spell");
@@ -341,8 +342,6 @@ void ATPCharacter::StopFire()
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Primary Held Ending");
 			primarySpell->GetProperties().Reset();
-			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-			AnimInstance->Montage_Resume(castingAnimMontage);
 		}
 	}
 
@@ -361,6 +360,8 @@ void ATPCharacter::StopFire()
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Active Held Ending");
 				activeSpell->SpellEnd();
 				activeSpell = 0;
+				UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+				AnimInstance->Montage_Resume(castingAnimMontage);
 			}
 		}
 	}
@@ -394,7 +395,6 @@ void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn,
 
 	if (activeSpell->GetProperties().isChargable == false)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Shoulndt see this");
 		activeSpell->Fire();
 		
 		if (!activeSpell->GetProperties().isHeld)

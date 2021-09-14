@@ -35,6 +35,7 @@ AProjectileSpell::AProjectileSpell()
 		//Registering the Projectile Impact function on a Hit event.
 		if (GetLocalRole() == ROLE_Authority)
 		{
+			SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectileSpell::OnBeginOverlap);
 			SphereComponent->OnComponentHit.AddDynamic(this, &ASpell::OnImpact);
 		}
 	}	
@@ -43,10 +44,11 @@ AProjectileSpell::AProjectileSpell()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->SetUpdatedComponent(SphereComponent);
-	ProjectileMovementComponent->bRotationFollowsVelocity = false;
-	ProjectileMovementComponent->InitialSpeed = 1000.0f;// properties.initialSpeed;
-	ProjectileMovementComponent->MaxSpeed = 1500.0f;// properties.maxSpeed;
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	ProjectileMovementComponent->InitialSpeed = 200.0f;// properties.initialSpeed;
+	ProjectileMovementComponent->MaxSpeed = 300.0f;// properties.maxSpeed;
 	ProjectileMovementComponent->Velocity = FVector(0.0f, 0.0f, 0.0f);	
+	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
 	/*static ConstructorHelpers::FObjectFinder<UParticleSystem> DefaultExplosionEffect(TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion"));
 	if (DefaultExplosionEffect.Succeeded())
@@ -63,6 +65,7 @@ AProjectileSpell::AProjectileSpell()
 
 	isTraveling = false;
 	properties.cooldownTimer = 0.0f;
+	destroyOnImpact = true;
 }
 
 void AProjectileSpell::GetLifetimeReplicatedProps(TArray <FLifetimeProperty>& OutLifetimeProps) const
@@ -72,7 +75,6 @@ void AProjectileSpell::GetLifetimeReplicatedProps(TArray <FLifetimeProperty>& Ou
 	//Replicate current health.
 	//DOREPLIFETIME(ASpell, currentSpeed);
 	DOREPLIFETIME(AProjectileSpell, isTraveling);
-	DOREPLIFETIME(AProjectileSpell, currentVelocity);
 }
 
 void AProjectileSpell::SetHomingTarget(AActor* _homingTarget)
@@ -83,7 +85,14 @@ void AProjectileSpell::SetHomingTarget(AActor* _homingTarget)
 void AProjectileSpell::PrepareSpell(FVector _target, const FSpellProperties& spellProps)
 {
 	Super::PrepareSpell(_target, spellProps);
-	ProjectileMovementComponent->ProjectileGravityScale = FMath::RandRange(properties.minGravWeight, properties.maxGravWeight);
+	if (properties.minGravWeight != properties.maxGravWeight)
+	{
+		ProjectileMovementComponent->ProjectileGravityScale = FMath::RandRange(properties.minGravWeight, properties.maxGravWeight);
+	}
+	else
+	{
+		ProjectileMovementComponent->ProjectileGravityScale = properties.minGravWeight;
+	}
 }
 
 void AProjectileSpell::Fire()
@@ -131,12 +140,23 @@ FVector AProjectileSpell::AddSpread(FVector curDirection)
 
 void AProjectileSpell::OnImpact(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor)
-	{
-		UGameplayStatics::ApplyPointDamage(OtherActor, properties.damage, NormalImpulse, Hit, GetInstigator()->Controller, this, properties.damageType);
-	}
-
 	SpellEnd();
+}
+
+void AProjectileSpell::OnBeginOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor &&
+		OtherActor != GetOwner() &&
+		OtherActor->GetOwner() != GetOwner())
+	{
+		UGameplayStatics::ApplyPointDamage(OtherActor, properties.damage, OtherActor->GetActorLocation(), SweepResult, GetInstigator()->Controller, this, properties.damageType);
+
+		SpellEnd();
+	}
+	else if (!OtherActor)
+	{
+		SpellEnd();
+	}
 }
 
 void AProjectileSpell::BeginCharge()
@@ -174,10 +194,9 @@ void AProjectileSpell::Move(float deltaTime)
 		}
 
 		OnVelocityChanged();
-	}
 
-	
-	ProjectileMovementComponent->UpdateComponentVelocity();
+		ProjectileMovementComponent->UpdateComponentVelocity();
+	}
 }
 
 void AProjectileSpell::OnTravellingChanged()
@@ -206,7 +225,10 @@ void AProjectileSpell::SpellEnd()
 		HandleExplosion(properties.explosionProperties);
 	}
 	
-	Destroy();
+	if (destroyOnImpact)
+	{
+		Destroy();
+	}
 }
 
 // Called when the game starts or when spawned
