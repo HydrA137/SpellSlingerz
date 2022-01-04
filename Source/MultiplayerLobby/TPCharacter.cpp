@@ -240,7 +240,7 @@ void ATPCharacter::SetCurrentHealth(float healthValue)
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		if (GetWorld()->GetAuthGameMode()->IsA(ASSGameModeBase::StaticClass()))
-		{
+		{			
 			CurrentHealth = FMath::Clamp(healthValue, 0.f, MaxHealth);
 			OnHealthUpdate();
 		}
@@ -249,22 +249,28 @@ void ATPCharacter::SetCurrentHealth(float healthValue)
 
 float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {	
-	float damageApplied = CurrentHealth - DamageTaken;
-	lastDamageDealer = Cast<ATPCharacter>(Cast<AActor>(DamageCauser)->GetOwner());
-
-	FString ownerMessage = "Last: " + lastDamageDealer->GetName().ToString() + ", This: " + this->GetName().ToString();
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, ownerMessage);
-	/*if (lastDamageDealer == this)
+	if (CurrentHealth > 0) //Only deal damage if the player can take it
 	{
-		return 0;
-	}*/
+		float damageApplied = CurrentHealth - DamageTaken;
+		lastDamageDealer = Cast<ATPCharacter>(Cast<AActor>(DamageCauser)->GetOwner());
 
-	SetCurrentHealth(damageApplied);
-	return damageApplied;		
+		FString ownerMessage = "Damage Dealt: " + FString::SanitizeFloat(DamageTaken);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, ownerMessage);
+		/*if (lastDamageDealer == this)
+		{
+			return 0;
+		}*/
+
+		SetCurrentHealth(damageApplied);
+		return damageApplied;
+	}
+
+	return 0.0f;
 }
 
 void ATPCharacter::StartFire()
 {
+	leftMouseButtonHeld = true;
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Start Fire");
 	GetWorldTimerManager().SetTimer(firingTimer, this, &ATPCharacter::Firing, 0.01f, true, 0.0f);
 }
@@ -273,7 +279,6 @@ void ATPCharacter::Firing()
 {
 	if (!primarySpell)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Why though?");
 		primarySpell = spellBook->GetPrimarySpell();
 		primarySpell->GetProperties().cooldownTimer = 0.0f;
 	}
@@ -296,7 +301,7 @@ void ATPCharacter::DoCastingAnimation()
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Starting Animation");
 		const float MontageLength = AnimInstance->Montage_Play(castingAnimMontage, FMath::Min(primarySpell->GetProperties().fireRate * 1.4f, 2.0f), EMontagePlayReturnType::Duration, 0.0f);
 		bPlayedSuccessfully = (MontageLength > 0.f);
-	}
+	}	
 }
 
 void ATPCharacter::ActivateSpell()
@@ -330,6 +335,8 @@ void ATPCharacter::Server_StopFire_Implementation()
 
 void ATPCharacter::StopFire()
 {
+	leftMouseButtonHeld = false;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "End Fire");
 	GetWorldTimerManager().ClearTimer(firingTimer);
 
 	if (primarySpell)
@@ -408,6 +415,12 @@ void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn,
 	else if (activeSpell->GetProperties().isHeld == true)
 	{
 		activeSpell->BeginCharge();
+	}
+
+	//If we have already let go of the mouse stop firing after a delay
+	if (leftMouseButtonHeld == false)
+	{
+		GetWorldTimerManager().SetTimer(EndFireTimer, this, &ATPCharacter::StopFire, 0.0f, false, 0.3f);
 	}
 }
 
@@ -506,24 +519,24 @@ TArray<AActor*> ATPCharacter::GetLookSphere(float distance, float radius)
 
 	if (UKismetSystemLibrary::SphereOverlapActors(GetWorld(), end, radius, { UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn) }, false, toIgnore, result))
 	{
-		UKismetSystemLibrary::DrawDebugSphere(
+		/*UKismetSystemLibrary::DrawDebugSphere(
 			GetWorld(),
 			end,
 			radius,
 			32,
 			FColor(0, 255, 0)
-		); 
+		); */
 
 		return result;
 	}
 
-	UKismetSystemLibrary::DrawDebugSphere(
+	/*UKismetSystemLibrary::DrawDebugSphere(
 		GetWorld(),
 		end,
 		radius,
 		32,
 		FColor(255, 0, 0)
-	);
+	);*/
 
 	return result;
 }

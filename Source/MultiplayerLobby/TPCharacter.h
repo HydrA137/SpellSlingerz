@@ -103,6 +103,9 @@ protected:
 	
 	/** A timer handle used for providing the fire rate delay in-between spawns.*/
 	FTimerHandle FiringTimer;
+
+	/** A timer handle used for ending the animation after a quick cast*/
+	FTimerHandle EndFireTimer;
 	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -163,6 +166,8 @@ private:
 
 	class ASpell* primarySpell;
 	class ASpell* activeSpell;
+
+	bool leftMouseButtonHeld = false;
 
 protected:
 	UPROPERTY(EditAnywhere)

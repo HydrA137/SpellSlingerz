@@ -31,7 +31,7 @@ void ASSPlayerState::OnRep_Winner()
 
 void ASSPlayerState::AddKill()
 {
-	if (GetLocalRole() == ROLE_Authority)
+	if (HasAuthority())
 	{
 		kills += 1;
 
@@ -42,7 +42,7 @@ void ASSPlayerState::AddKill()
 
 void ASSPlayerState::RemoveKill()
 {
-	if (GetLocalRole() == ROLE_Authority)
+	if (HasAuthority())
 	{
 		kills -= 1;
 		kills = FMath::Max(kills, 0);
@@ -54,7 +54,7 @@ void ASSPlayerState::RemoveKill()
 
 void ASSPlayerState::AddDeath()
 {
-	if (GetLocalRole() == ROLE_Authority)
+	if (HasAuthority())
 	{
 		deaths += 1;
 	}

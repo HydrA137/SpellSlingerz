@@ -60,9 +60,12 @@ void ASSGameModeBase::UpdateChat_Implementation(const FText& sender, const FText
 void ASSGameModeBase::RespawnPlayer_Implementation(const ATPCharacter* player, TSubclassOf<ACharacter>  character)
 {
 	AController* controller = &(*player->GetController());
-	player->GetController()->UnPossess();
 
-	SpawnPlayer((APlayerController*)controller, character);
+	if (controller != NULL) {
+		player->GetController()->UnPossess();
+	
+		SpawnPlayer((APlayerController*)controller, character);
+	}
 }
 
 

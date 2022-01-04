@@ -78,6 +78,7 @@ void AForceLightning::Tick(float DeltaTime)
 	{
 		CheckTargetCooldowns(DeltaTime);
 		AimLightning(DeltaTime);
+		properties.damage += (1.0f * DeltaTime);
 	}
 }
 
