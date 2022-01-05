@@ -420,7 +420,7 @@ void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn,
 	//If we have already let go of the mouse stop firing after a delay
 	if (leftMouseButtonHeld == false)
 	{
-		GetWorldTimerManager().SetTimer(EndFireTimer, this, &ATPCharacter::StopFire, 0.0f, false, 0.3f);
+		GetWorldTimerManager().SetTimer(EndFireTimer, this, &ATPCharacter::StopFire, 0.05f, false, 0.05f);
 	}
 }
 
@@ -550,4 +550,10 @@ void ATPCharacter::SetSpell(int SpellNumber)
 {
 	primarySpell = 0;
 	spellBook->SetSpell(SpellNumber);
+}
+
+void ATPCharacter::FellOutOfWorld(const UDamageType& dmgType)
+{
+	lastDamageDealer = this;
+	SetCurrentHealth(0.0f);
 }

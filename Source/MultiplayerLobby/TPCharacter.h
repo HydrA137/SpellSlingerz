@@ -28,7 +28,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void ActivateSpell();
-
 	
 	FHitResult GetLookPoint(float distance, float radius);
 
@@ -55,6 +54,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual bool IsWinner() { return Winner; }
+
+	virtual void FellOutOfWorld(const class UDamageType& dmgType) override;
 	
 protected:
 	// Called when the game starts or when spawned
