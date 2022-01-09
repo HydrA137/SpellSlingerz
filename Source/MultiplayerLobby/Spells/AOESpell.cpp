@@ -12,6 +12,11 @@ AAOESpell::AAOESpell()
 	bReplicates = true;
 
 	AOE_TargettingMesh = CreateDefaultSubobject<UStaticMeshComponent>("AOE_TargettingMesh");
+
+	static ConstructorHelpers::FObjectFinder<UClass> ItemBlueprint(TEXT("Class'/Game/_Main/Spells/Icicle.Icicle_C'"));
+	if (ItemBlueprint.Object) {
+		MyItemBlueprint = (UClass*)ItemBlueprint.Object;
+	}
 }
 
 
@@ -81,10 +86,10 @@ void AAOESpell::SpawnSpellActor()
 	if (HasAuthority())
 	{
 		//Copied Code to spawn actor
-		UObject* SpawnActor = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("/Game/_Main/Spells/Icicle")));
+		//UObject* SpawnActor = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("/Game/_Main/Spells/Icicle")));
 
-		UBlueprint* GeneratedBP = Cast<UBlueprint>(SpawnActor);
-		if (!SpawnActor)
+		//UBlueprint* GeneratedBP = Cast<UBlueprint>(SpawnActor);
+		/*if (!ItemBlueprint)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("CANT FIND OBJECT TO SPAWN")));
 			return;
@@ -95,14 +100,14 @@ void AAOESpell::SpawnSpellActor()
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("CLASS == NULL")));
 			return;
-		}
+		}*/
 
 		UWorld* World = GetWorld();
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this->GetOwner();
 		SpawnParams.Instigator = this->GetInstigator();
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		World->SpawnActor<AActor>(GeneratedBP->GeneratedClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+		World->SpawnActor<AActor>(MyItemBlueprint, GetActorLocation(), GetActorRotation(), SpawnParams);
 	}
 	else
 	{

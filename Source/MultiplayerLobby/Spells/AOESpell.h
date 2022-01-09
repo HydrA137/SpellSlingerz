@@ -50,6 +50,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Components");
 	class UStaticMeshComponent* AOE_TargettingMesh;
 
+	TSubclassOf<class AActor> MyItemBlueprint;
+
+
+
 private:
 	FVector spellLocation;
 

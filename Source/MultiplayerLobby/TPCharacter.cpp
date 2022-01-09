@@ -271,7 +271,7 @@ float ATPCharacter::TakeDamage(float DamageTaken, struct FDamageEvent const& Dam
 void ATPCharacter::StartFire()
 {
 	leftMouseButtonHeld = true;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Start Fire");
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Start Fire");
 	GetWorldTimerManager().SetTimer(firingTimer, this, &ATPCharacter::Firing, 0.01f, true, 0.0f);
 }
 
@@ -286,7 +286,7 @@ void ATPCharacter::Firing()
 	if (primarySpell->IsReady() && !isCasting)
 	{
 		// Start Firing Animation
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Start Cast Spell");
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Start Cast Spell");
 		DoCastingAnimation();
 	}
 }
@@ -298,7 +298,7 @@ void ATPCharacter::DoCastingAnimation()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && castingAnimMontage)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Starting Animation");
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Starting Animation");
 		const float MontageLength = AnimInstance->Montage_Play(castingAnimMontage, FMath::Min(primarySpell->GetProperties().fireRate * 1.4f, 2.0f), EMontagePlayReturnType::Duration, 0.0f);
 		bPlayedSuccessfully = (MontageLength > 0.f);
 	}	
@@ -309,7 +309,7 @@ void ATPCharacter::ActivateSpell()
 	if (this && primarySpell)
 	{
 		isCasting = false;
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Activate Spell");
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Activate Spell");
 		FVector spawnLocation = GetSpellCastPoint();
 
 		FVector start = GetFollowCamera()->GetComponentLocation();
@@ -336,7 +336,7 @@ void ATPCharacter::Server_StopFire_Implementation()
 void ATPCharacter::StopFire()
 {
 	leftMouseButtonHeld = false;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "End Fire");
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "End Fire");
 	GetWorldTimerManager().ClearTimer(firingTimer);
 
 	if (primarySpell)
@@ -344,12 +344,12 @@ void ATPCharacter::StopFire()
 		if (primarySpell->GetProperties().isChargable &&
 			primarySpell->IsCharging())
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Primary Charge Ending");
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Primary Charge Ending");
 			primarySpell->Fired();
 		}
 		else if (primarySpell->GetProperties().isHeld)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Primary Held Ending");
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Primary Held Ending");
 			primarySpell->GetProperties().Reset();
 		}
 	}
@@ -360,13 +360,13 @@ void ATPCharacter::StopFire()
 			if (activeSpell->GetProperties().isChargable &&
 				activeSpell->IsCharging())
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Active Charge Ending");
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Active Charge Ending");
 				activeSpell->EndCharge();
 				activeSpell = 0;
 			}
 			else if (activeSpell->GetProperties().isHeld)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Active Held Ending");
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Active Held Ending");
 				activeSpell->SpellEnd();
 				activeSpell = 0;
 				UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -382,7 +382,7 @@ void ATPCharacter::StopFire()
 
 void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn, FVector target, const FHitResult& hitResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "firing");
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "firing");
 	FRotator spawnRotation = (target - spawn).Rotation();
 
 	FActorSpawnParameters spawnParameters;
