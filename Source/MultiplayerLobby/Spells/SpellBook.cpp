@@ -37,6 +37,7 @@ void USpellBook::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	UpdateCooldowns(DeltaTime);
+	UpdateSpreads(DeltaTime);
 }
 
 void USpellBook::OnKill(int score)
@@ -76,7 +77,7 @@ void USpellBook::UpdateSpreads(float deltaTime)
 	{
 		ASpell* spell = spells[i].GetDefaultObject();
 		float spreadAngle = spell->GetProperties().spreadAngle;
-		spreadAngle -= deltaTime;
+		spreadAngle -= deltaTime * spell->GetProperties().spreadRecoveryRate;
 		spell->GetProperties().spreadAngle = FMath::Max(spell->GetProperties().minSpreadAngle, spreadAngle);
 	}
 }

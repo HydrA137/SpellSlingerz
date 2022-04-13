@@ -41,6 +41,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void SpellEnd();
+
+	UFUNCTION()
+	void DestroySpell();
 	
 	UFUNCTION()
 	bool IsCharging() { return isCharging; }

@@ -10,6 +10,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 #include "SpellProperties.h"
 #include "ExplosionProperties.h"
@@ -103,7 +104,8 @@ void AProjectileSpell::Fire()
 void AProjectileSpell::FireAt(FVector _target)
 {
 	target = _target;
-	direction = AddSpread(_target - GetActorLocation());
+	FVector temp = GetActorTransform().TransformVector(properties.firingDirection);
+	direction = AddSpread(temp != FVector::ZeroVector ? temp : _target - GetActorLocation());
 	direction.Normalize();
 	isTraveling = true;
 
@@ -123,19 +125,7 @@ void AProjectileSpell::FireAt(FVector _target)
 
 FVector AProjectileSpell::AddSpread(FVector curDirection)
 {
-	float upDown = FMath::RandRange(-GetProperties().spreadAngle, GetProperties().spreadAngle);
-	float leftRight = FMath::RandRange(-GetProperties().spreadAngle, GetProperties().spreadAngle);
-	FVector2D spreadArea = FVector2D(leftRight * 10.0f, upDown * 10.0f);
-	spreadArea.Normalize();
-	spreadArea *= FVector2D(leftRight, upDown);
-
-	FRotator newRotator = FRotator(GetActorRotation().Pitch + upDown, GetActorRotation().Yaw + leftRight, GetActorRotation().Roll);
-
-	SetActorRotation(newRotator);
-
-	curDirection = FRotationMatrix(GetActorRotation()).GetScaledAxis(EAxis::X);
-
-	return curDirection;
+	return UKismetMathLibrary::RandomUnitVectorInConeInDegrees(curDirection, GetProperties().spreadAngle);
 }
 
 void AProjectileSpell::OnImpact(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -177,13 +167,22 @@ void AProjectileSpell::Move(float deltaTime)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		currentSpeed = FMath::Min(properties.maxSpeed, currentSpeed + (properties.acceleration * deltaTime));
-		if (homingTarget)
+		float distance = (target - GetActorLocation()).Size();
+		if (distance <= 30.0f)
 		{
-			FVector targetVelocity = (homingTarget->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-			targetVelocity += homingTarget->GetVelocity() * targetVelocity.Size() / currentSpeed;
+			SpellEnd();
+			return;
+		}
 
-			FVector newVelocity = ProjectileMovementComponent->Velocity + targetVelocity * currentSpeed * deltaTime;
+		currentSpeed = FMath::Min(properties.maxSpeed, currentSpeed + (properties.acceleration * deltaTime));
+		if (properties.isHoming)
+		{
+			FVector flyTo = homingTarget ? homingTarget->GetActorLocation() : target;
+			FVector flyToVelocity = homingTarget ? homingTarget->GetVelocity() : FVector::ZeroVector;
+			FVector targetVelocity = (flyTo - GetActorLocation()).GetSafeNormal();
+			targetVelocity += flyToVelocity * targetVelocity.Size() / currentSpeed;
+
+			FVector newVelocity = ProjectileMovementComponent->Velocity + targetVelocity * currentSpeed * properties.homingStrength * deltaTime;
 			newVelocity = newVelocity.GetSafeNormal() * currentSpeed;
 			currentVelocity = newVelocity;
 		}
@@ -217,7 +216,7 @@ void AProjectileSpell::SpellEnd()
 	FVector spawnLocation = GetActorLocation();
 	if (travelEffectComponent)
 	{
-		travelEffectComponent->DeactivateSystem();
+		travelEffectComponent->DeactivateSystem();		
 	}
 
 	if (properties.hasExplosion) // Has an explosion
@@ -227,7 +226,10 @@ void AProjectileSpell::SpellEnd()
 	
 	if (destroyOnImpact)
 	{
-		Destroy();
+		ProjectileMovementComponent->Deactivate();
+		SphereComponent->Deactivate();
+		FTimerHandle deathTimerHandle;
+		Super::SpellEnd();
 	}
 }
 

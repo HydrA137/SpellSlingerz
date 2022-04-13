@@ -39,6 +39,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetSpell(int SpellNumber);
 
+	
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -46,7 +48,6 @@ protected:
 	virtual void UpdateCooldowns(float deltaTime);
 
 	virtual void UpdateSpreads(float deltaTime);
-
 	///////////////////////
 	// Variables
 protected:

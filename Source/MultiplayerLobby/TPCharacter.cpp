@@ -12,6 +12,7 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Components/SceneComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/Engine.h"
@@ -382,39 +383,46 @@ void ATPCharacter::StopFire()
 
 void ATPCharacter::HandleFire_Implementation(ASpell* spellTarget, FVector spawn, FVector target, const FHitResult& hitResult)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "firing");
-	FRotator spawnRotation = (target - spawn).Rotation();
+	FVector dir = target - spawn;
+	FRotator spawnRotation = dir.Rotation();
 
 	FActorSpawnParameters spawnParameters;
 	spawnParameters.Instigator = GetInstigator();
 	spawnParameters.Owner = this;
 	
+	int count = spellTarget->GetProperties().isHeld ? 1 : FMath::Max(1, FMath::RandRange(spellTarget->GetProperties().minProjectileCount, spellTarget->GetProperties().maxProjectileCount));
+	float radius = FMath::RandRange(spellTarget->GetProperties().minAOERadius, spellTarget->GetProperties().maxAOERadius);
 	// Get Spell based on type
-	activeSpell = GetWorld()->SpawnActor<ASpell>(spellTarget->GetClass(), spawn, spawnRotation, spawnParameters);
-	activeSpell->PrepareSpell(target, spellTarget->GetProperties());
-	
-	if (activeSpell->GetProperties().isHoming && hitResult.Actor.IsValid())
+	for (int i = 0; i < count; ++i)
 	{
-		ATPCharacter* targetPlayer = dynamic_cast<ATPCharacter*>(hitResult.Actor.Get());
-		if (targetPlayer)
-		{
-			dynamic_cast<AProjectileSpell*>(activeSpell)->SetHomingTarget(hitResult.Actor.Get());
-		}
-	}
+		FVector uniqueSpawn = spawn + GetActorRightVector() * FMath::RandRange(-radius, radius) + GetActorUpVector() * FMath::RandRange(-radius, radius);
+		// Get Spell based on type
+		activeSpell = GetWorld()->SpawnActor<ASpell>(spellTarget->GetClass(), spawn, spawnRotation, spawnParameters);
+		activeSpell->PrepareSpell(target, spellTarget->GetProperties());
 
-	if (activeSpell->GetProperties().isChargable == false)
-	{
-		activeSpell->Fire();
-		
-		if (!activeSpell->GetProperties().isHeld)
+		if (activeSpell->GetProperties().isHoming && hitResult.Actor.IsValid())
 		{
-			// if not held we fire and forget.
-			activeSpell = 0;
+			ATPCharacter* targetPlayer = dynamic_cast<ATPCharacter*>(hitResult.Actor.Get());
+			if (targetPlayer)
+			{
+				dynamic_cast<AProjectileSpell*>(activeSpell)->SetHomingTarget(hitResult.Actor.Get());
+			}
 		}
-	}
-	else if (activeSpell->GetProperties().isHeld == true)
-	{
-		activeSpell->BeginCharge();
+
+		if (activeSpell->GetProperties().isChargable == false)
+		{
+			activeSpell->Fire();
+
+			if (!activeSpell->GetProperties().isHeld)
+			{
+				// if not held we fire and forget.
+				activeSpell = 0;
+			}
+		}
+		else if (activeSpell->GetProperties().isHeld == true)
+		{
+			activeSpell->BeginCharge();
+		}
 	}
 
 	//If we have already let go of the mouse stop firing after a delay

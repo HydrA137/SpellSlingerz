@@ -90,6 +90,12 @@ void ASpell::HandleExplosion_Implementation(const FExplosionProperties& explosio
 
 void ASpell::SpellEnd()
 {
+	FTimerHandle deathTimerHandle;
+	GetWorldTimerManager().SetTimer(deathTimerHandle, this, &ASpell::DestroySpell, 2.0f, false);
+}
+
+void ASpell::DestroySpell()
+{
 	Destroy();
 }
 

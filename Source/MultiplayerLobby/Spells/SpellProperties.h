@@ -61,6 +61,12 @@ struct FSpellProperties
 	float acceleration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float homingStrength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	FVector firingDirection;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float range;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -99,6 +105,9 @@ struct FSpellProperties
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	float spreadAngle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
+	float spreadRecoveryRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offense")
 	float minSpreadAngle;
